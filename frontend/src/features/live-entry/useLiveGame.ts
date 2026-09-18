@@ -8,6 +8,7 @@ import { db, type CachedGame, type CachedPlayer, type CachedRosterEntry, type Lo
 import { withRecordLock } from "../../offline/recordLock";
 import { startSyncLoop, type SyncLoop, type SyncStatus } from "../../offline/sync";
 import { useLiveQuery } from "../../offline/useLiveQuery";
+import { generateEventId } from "../../offline/uuid";
 
 interface RecordEventInput {
   actor: EventActor;
@@ -102,7 +103,7 @@ export function useLiveGame(gameId: string) {
     await withRecordLock(gameId, async () => {
       const seq = await nextSeq(gameId);
       const event: LocalGameEvent = {
-        id: crypto.randomUUID(),
+        id: generateEventId(),
         gameId,
         seq,
         period: input.period,

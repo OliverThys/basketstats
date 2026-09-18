@@ -39,12 +39,18 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
   useEffect(() => {
     if (!isReadyForImmediateEvent(entry)) return;
     void (async () => {
-      await recordEvent({
-        actor: "home_player",
-        actionType: entry.selectedAction,
-        playerId: entry.selectedPlayerId,
-        period,
-      });
+      try {
+        await recordEvent({
+          actor: "home_player",
+          actionType: entry.selectedAction,
+          playerId: entry.selectedPlayerId,
+          period,
+        });
+      } catch (error) {
+        // Surface it instead of leaving the selection stuck forever with
+        // nothing recorded and no visible sign anything went wrong.
+        console.error("Failed to record event", error);
+      }
       dispatch({ type: "RESET" });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,19 +86,27 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
 
   async function completeShot(x: number, y: number) {
     if (!entry.pendingShot) return;
-    await recordEvent({
-      actor: "home_player",
-      actionType: entry.pendingShot.action,
-      playerId: entry.pendingShot.playerId,
-      period,
-      x,
-      y,
-    });
+    try {
+      await recordEvent({
+        actor: "home_player",
+        actionType: entry.pendingShot.action,
+        playerId: entry.pendingShot.playerId,
+        period,
+        x,
+        y,
+      });
+    } catch (error) {
+      console.error("Failed to record shot", error);
+    }
     dispatch({ type: "RESET" });
   }
 
   async function recordOpponentEvent(action: ActionType) {
-    await recordEvent({ actor: "opponent_team", actionType: action, playerId: null, period });
+    try {
+      await recordEvent({ actor: "opponent_team", actionType: action, playerId: null, period });
+    } catch (error) {
+      console.error("Failed to record opponent event", error);
+    }
   }
 
   function handleSelectAction(action: ActionType) {
