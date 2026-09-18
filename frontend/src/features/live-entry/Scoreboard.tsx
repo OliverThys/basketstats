@@ -27,23 +27,29 @@ export function Scoreboard({
 
   const periodEvents = activeEvents.filter((event) => event.period === period);
   const periodScore = computeBoxScore(periodEvents);
-  const teamFouls = periodEvents.filter(
+  const homeFouls = periodEvents.filter(
     (event) => event.actor === "home_player" && event.actionType === ActionType.FOUL_COMMITTED,
   ).length;
-  const inBonus = teamFouls >= 5;
+  const opponentFouls = periodEvents.filter(
+    (event) => event.actor === "opponent_team" && event.actionType === ActionType.OPP_FOUL,
+  ).length;
+  const homeInBonus = homeFouls >= 5;
+  const opponentInBonus = opponentFouls >= 5;
 
   return (
     <section className="scoreboard">
       <div className="scoreboard-score">
+        <span className={homeInBonus ? "team-fouls bonus" : "team-fouls"}>{homeFouls}</span>
         <div className="team-score">
           <span className="team-name">{homeTeamName}</span>
           <span className="score-value">{overall.homeScore}</span>
         </div>
         <span className="scoreboard-sep">-</span>
         <div className="team-score">
-          <span className="score-value">{overall.opponentScore}</span>
           <span className="team-name">{opponentName}</span>
+          <span className="score-value">{overall.opponentScore}</span>
         </div>
+        <span className={opponentInBonus ? "team-fouls bonus" : "team-fouls"}>{opponentFouls}</span>
       </div>
       <div className="scoreboard-periods">
         {PERIODS.map((p) => (
@@ -57,11 +63,7 @@ export function Scoreboard({
         ))}
       </div>
       <div className="scoreboard-step">
-        <span className="step-label">{stepLabel}</span>
-        <span className={inBonus ? "team-fouls bonus" : "team-fouls"}>
-          Fautes d'équipe: {teamFouls}
-          {inBonus ? " (Bonus)" : ""}
-        </span>
+        {stepLabel && <span className="step-label">{stepLabel}</span>}
         <span className="quarter-score">
           Score du quart-temps: {periodScore.homeScore} - {periodScore.opponentScore}
         </span>

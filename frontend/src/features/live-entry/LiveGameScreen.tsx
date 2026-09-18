@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 
+import { fetchTeam } from "../../api/stats";
 import { ActionType } from "../../domain/actionTypes";
 import { ActionButtons } from "./ActionButtons";
 import { BoxScoreModal } from "./BoxScoreModal";
@@ -29,6 +30,7 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
   const [entry, dispatch] = useReducer(entryReducer, initialEntryState);
   const [period, setPeriod] = useState(1);
   const [modal, setModal] = useState<null | "box-score" | "shot-chart" | "sketch-board">(null);
+  const [homeTeamName, setHomeTeamName] = useState("Domicile");
   const shotMarkers = useMemo(
     () => extractShotEntries(events).map((shot) => ({ id: shot.id, x: shot.x, y: shot.y, made: shot.made })),
     [events],
@@ -47,6 +49,21 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry.selectedAction, entry.selectedPlayerId]);
+
+  useEffect(() => {
+    if (!game) return;
+    let cancelled = false;
+    void fetchTeam(game.homeTeamId)
+      .then((team) => {
+        if (!cancelled) setHomeTeamName(team.name);
+      })
+      .catch(() => {
+        // Offline or unreachable: keep the "Domicile" fallback.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [game?.homeTeamId]);
 
   if (loadError) {
     return (
@@ -90,7 +107,7 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
     ? "2ème étape: touchez l'emplacement du tir"
     : entry.selectedAction || entry.selectedPlayerId
       ? "2ème étape: sélectionnez l'autre"
-      : "1ère étape: sélectionnez joueur ou stat";
+      : "";
 
   return (
     <div className="live-game-frame">
@@ -114,7 +131,7 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
             <div className="live-game-top-row">
               <PlayByPlay events={events} players={players} opponentName={game.opponentName} onVoid={voidEvent} onUndoLast={undoLast} />
               <Scoreboard
-                homeTeamName="Domicile"
+                homeTeamName={homeTeamName}
                 opponentName={game.opponentName}
                 events={events}
                 period={period}
