@@ -34,11 +34,13 @@ export function PlayByPlay({ events, players, opponentName, onVoid, onUndoLast }
     <section className="play-by-play">
       <header>
         <h3>Actions</h3>
-        <button className="edit-btn" onClick={() => setEditing((prev) => !prev)}>{editing ? "Terminer" : "Modifier"}</button>
+        <div className="header-actions">
+          <button className="undo-last" disabled={!hasActiveEvents} onClick={onUndoLast}>
+            Annuler
+          </button>
+          <button className="edit-btn" onClick={() => setEditing((prev) => !prev)}>{editing ? "Terminer" : "Modifier"}</button>
+        </div>
       </header>
-      <button className="undo-last" disabled={!hasActiveEvents} onClick={onUndoLast}>
-        Annuler la dernière action
-      </button>
       <ul>
         {visibleEvents.map((event) => (
           <li key={event.id} className={event.voided ? "voided" : ""}>

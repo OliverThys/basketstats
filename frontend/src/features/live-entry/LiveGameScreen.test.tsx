@@ -139,7 +139,7 @@ describe("LiveGameScreen", () => {
     fireEvent.click(screen.getByText("Passe"));
     await waitFor(() => expect(screen.getByText(/Henry Domercant - Passe décisive/)).toBeInTheDocument());
 
-    fireEvent.click(screen.getByText("Annuler la dernière action"));
+    fireEvent.click(screen.getByText("Annuler"));
 
     await waitFor(async () => {
       const stored = await db.gameEvents.where("gameId").equals("game-1").toArray();
