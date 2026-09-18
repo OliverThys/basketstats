@@ -143,25 +143,29 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
             {entry.pendingShot ? (
               <div className="shot-capture">
                 <p>Touchez le terrain pour enregistrer l'emplacement du tir</p>
-                <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
+                <div className="shot-capture-court">
+                  <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
+                </div>
                 <button className="cancel-btn" onClick={() => dispatch({ type: "RESET" })}>Annuler</button>
               </div>
             ) : (
-              <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
-            )}
+              <>
+                <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
 
-            <div className="live-game-bottom-row">
-              <PlayerGrid
-                players={players}
-                roster={roster}
-                selectedPlayerId={entry.selectedPlayerId}
-                onSelect={handleSelectPlayer}
-              />
-              <div className="side-actions">
-                <PersonalFouls selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
-                <OpponentButtons opponentName={game.opponentName} onScore={(action) => void recordOpponentEvent(action)} />
-              </div>
-            </div>
+                <div className="live-game-bottom-row">
+                  <PlayerGrid
+                    players={players}
+                    roster={roster}
+                    selectedPlayerId={entry.selectedPlayerId}
+                    onSelect={handleSelectPlayer}
+                  />
+                  <div className="side-actions">
+                    <PersonalFouls selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
+                    <OpponentButtons opponentName={game.opponentName} onScore={(action) => void recordOpponentEvent(action)} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="live-game-sidebar">

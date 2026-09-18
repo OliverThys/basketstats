@@ -767,11 +767,32 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.shot-capture p {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.shot-capture-court {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .shot-capture .shot-pad {
-  max-width: 480px;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
   margin: 0 auto;
+}
+
+.shot-capture .cancel-btn {
+  flex-shrink: 0;
 }
 
 /* Shot chart view */
