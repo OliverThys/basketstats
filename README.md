@@ -180,4 +180,5 @@ que les deux calculs ne divergent jamais.
 - `docs/brief.md` : brief maître et découpage en phases.
 - `docs/data-model.md` : modèle de données.
 - `docs/stats-formulas.md` : formules de statistiques.
+- `docs/deployment.md` : pipeline de déploiement (VPS OVH).
 - `docs/reference-app/` : captures de l'app de référence.
