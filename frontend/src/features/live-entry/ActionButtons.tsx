@@ -32,47 +32,42 @@ export function ActionButtons({ selectedAction, onSelect }: ActionButtonsProps) 
   return (
     <div className="action-buttons">
       <div className="action-group">
-        <h4>2pt Field Goals</h4>
+        <h4>Points</h4>
         <div className="action-row">
-          <ActionButton action={ActionType.FG2_MADE} label="Made" variant="made" selected={selectedAction === ActionType.FG2_MADE} onSelect={onSelect} />
-          <ActionButton action={ActionType.FG2_MISS} label="Missed" variant="missed" selected={selectedAction === ActionType.FG2_MISS} onSelect={onSelect} />
+          <ActionButton action={ActionType.FT_MADE} label="+1" variant="made" selected={selectedAction === ActionType.FT_MADE} onSelect={onSelect} />
+          <ActionButton action={ActionType.FG2_MADE} label="+2" variant="made" selected={selectedAction === ActionType.FG2_MADE} onSelect={onSelect} />
+          <ActionButton action={ActionType.FG3_MADE} label="+3" variant="made" selected={selectedAction === ActionType.FG3_MADE} onSelect={onSelect} />
+        </div>
+        <div className="action-row" style={{ marginTop: '0.25rem' }}>
+          <ActionButton action={ActionType.FT_MISS} label="Manqué 1" variant="missed" selected={selectedAction === ActionType.FT_MISS} onSelect={onSelect} />
+          <ActionButton action={ActionType.FG2_MISS} label="Manqué 2" variant="missed" selected={selectedAction === ActionType.FG2_MISS} onSelect={onSelect} />
+          <ActionButton action={ActionType.FG3_MISS} label="Manqué 3" variant="missed" selected={selectedAction === ActionType.FG3_MISS} onSelect={onSelect} />
         </div>
       </div>
+      
       <div className="action-group">
-        <h4>3pt Field Goals</h4>
+        <h4>Rebonds</h4>
         <div className="action-row">
-          <ActionButton action={ActionType.FG3_MADE} label="Made" variant="made" selected={selectedAction === ActionType.FG3_MADE} onSelect={onSelect} />
-          <ActionButton action={ActionType.FG3_MISS} label="Missed" variant="missed" selected={selectedAction === ActionType.FG3_MISS} onSelect={onSelect} />
+          <ActionButton action={ActionType.REB_OFF} label="Off." variant="neutral" selected={selectedAction === ActionType.REB_OFF} onSelect={onSelect} />
+          <ActionButton action={ActionType.REB_DEF} label="Déf." variant="neutral" selected={selectedAction === ActionType.REB_DEF} onSelect={onSelect} />
         </div>
       </div>
+      
       <div className="action-group">
-        <h4>Free Throws</h4>
+        <h4>Fautes</h4>
         <div className="action-row">
-          <ActionButton action={ActionType.FT_MADE} label="Made" variant="made" selected={selectedAction === ActionType.FT_MADE} onSelect={onSelect} />
-          <ActionButton action={ActionType.FT_MISS} label="Missed" variant="missed" selected={selectedAction === ActionType.FT_MISS} onSelect={onSelect} />
+          <ActionButton action={ActionType.FOUL_COMMITTED} label="Faute" variant="neutral" selected={selectedAction === ActionType.FOUL_COMMITTED} onSelect={onSelect} />
+          <ActionButton action={ActionType.FOUL_DRAWN} label="Provoquée" variant="neutral" selected={selectedAction === ActionType.FOUL_DRAWN} onSelect={onSelect} />
         </div>
       </div>
+      
       <div className="action-group">
-        <h4>Rebounds</h4>
+        <h4>Autres</h4>
         <div className="action-row">
-          <ActionButton action={ActionType.REB_OFF} label="Offensive" variant="neutral" selected={selectedAction === ActionType.REB_OFF} onSelect={onSelect} />
-          <ActionButton action={ActionType.REB_DEF} label="Defensive" variant="neutral" selected={selectedAction === ActionType.REB_DEF} onSelect={onSelect} />
-        </div>
-      </div>
-      <div className="action-group">
-        <h4>Other</h4>
-        <div className="action-row">
-          <ActionButton action={ActionType.BLOCK} label="Block" variant="neutral" selected={selectedAction === ActionType.BLOCK} onSelect={onSelect} />
-          <ActionButton action={ActionType.ASSIST} label="Assist" variant="neutral" selected={selectedAction === ActionType.ASSIST} onSelect={onSelect} />
-          <ActionButton action={ActionType.STEAL} label="Steal" variant="neutral" selected={selectedAction === ActionType.STEAL} onSelect={onSelect} />
-          <ActionButton action={ActionType.TURNOVER} label="Turnover" variant="neutral" selected={selectedAction === ActionType.TURNOVER} onSelect={onSelect} />
-        </div>
-      </div>
-      <div className="action-group">
-        <h4>Personal Fouls</h4>
-        <div className="action-row">
-          <ActionButton action={ActionType.FOUL_COMMITTED} label="Committed" variant="neutral" selected={selectedAction === ActionType.FOUL_COMMITTED} onSelect={onSelect} />
-          <ActionButton action={ActionType.FOUL_DRAWN} label="Forced" variant="neutral" selected={selectedAction === ActionType.FOUL_DRAWN} onSelect={onSelect} />
+          <ActionButton action={ActionType.TURNOVER} label="Balle Perdue" variant="neutral" selected={selectedAction === ActionType.TURNOVER} onSelect={onSelect} />
+          <ActionButton action={ActionType.STEAL} label="Interception" variant="neutral" selected={selectedAction === ActionType.STEAL} onSelect={onSelect} />
+          <ActionButton action={ActionType.ASSIST} label="Passe" variant="neutral" selected={selectedAction === ActionType.ASSIST} onSelect={onSelect} />
+          <ActionButton action={ActionType.BLOCK} label="Contre" variant="neutral" selected={selectedAction === ActionType.BLOCK} onSelect={onSelect} />
         </div>
       </div>
     </div>

@@ -20,11 +20,11 @@ export function StatsPanel({ events, players }: StatsPanelProps) {
       <table>
         <thead>
           <tr>
-            <th>Player</th>
+            <th>Joueur</th>
             <th>PTS</th>
             <th>REB</th>
-            <th>AST</th>
-            <th>Fouls</th>
+            <th>PAD</th>
+            <th>Fautes</th>
           </tr>
         </thead>
         <tbody>

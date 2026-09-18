@@ -12,7 +12,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
       <div className="modal-panel" onClick={(event) => event.stopPropagation()}>
         <header>
           <h3>{title}</h3>
-          <button onClick={onClose}>Done</button>
+          <button className="header-btn" onClick={onClose}>Fermer</button>
         </header>
         <div className="modal-body">{children}</div>
       </div>

@@ -60,10 +60,10 @@ describe("ShotChartView", () => {
     const events: LocalGameEvent[] = [shotEvent({ id: "s1", playerId: "p1" }), shotEvent({ id: "s2", playerId: "p2" })];
     render(<ShotChartView events={events} players={players} onClose={() => {}} />);
 
-    fireEvent.click(screen.getByText("Deselect All"));
+    fireEvent.click(screen.getByText("Tout désélectionner"));
     expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(0);
 
-    fireEvent.click(screen.getByText("Select All"));
+    fireEvent.click(screen.getByText("Tout sélectionner"));
     expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(2);
   });
 
@@ -91,6 +91,6 @@ describe("ShotChartView", () => {
 
   it("exposes an export control", () => {
     render(<ShotChartView events={[]} players={players} onClose={() => {}} />);
-    expect(screen.getByText("Export image")).toBeInTheDocument();
+    expect(screen.getByText("Exporter l'image")).toBeInTheDocument();
   });
 });

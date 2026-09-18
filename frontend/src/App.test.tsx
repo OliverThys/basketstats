@@ -22,12 +22,12 @@ describe("App", () => {
 
   it("displays the API status once loaded", async () => {
     renderWithClient(<App />);
-    expect(await screen.findByText(/API status: ok/)).toBeInTheDocument();
+    expect(await screen.findByText(/Statut API: ok/)).toBeInTheDocument();
   });
 
   it("offers a team ID field for season stats", () => {
     renderWithClient(<App />);
-    expect(screen.getByLabelText("Team ID")).toBeInTheDocument();
-    expect(screen.getByText("Open season stats")).toBeInTheDocument();
+    expect(screen.getByLabelText("ID de l'équipe")).toBeInTheDocument();
+    expect(screen.getByText("Stats de la saison")).toBeInTheDocument();
   });
 });

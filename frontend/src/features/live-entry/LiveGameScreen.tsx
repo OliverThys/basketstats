@@ -51,13 +51,13 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
     return (
       <div className="live-game-error">
         <p>{loadError}</p>
-        <button onClick={onDone}>Back</button>
+        <button onClick={onDone}>Retour</button>
       </div>
     );
   }
 
   if (!game) {
-    return <div className="live-game-loading">Loading game…</div>;
+    return <div className="live-game-loading">Chargement du match…</div>;
   }
 
   async function completeShot(x: number, y: number) {
@@ -86,33 +86,40 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
   }
 
   const stepLabel = entry.pendingShot
-    ? "2nd Step: tap the shot location"
+    ? "2ème étape: touchez l'emplacement du tir"
     : entry.selectedAction || entry.selectedPlayerId
-      ? "2nd Step: select the other one"
-      : "1st Step: select player or stat";
+      ? "2ème étape: sélectionnez l'autre"
+      : "1ère étape: sélectionnez joueur ou stat";
 
   return (
     <div className="live-game-screen">
       <header className="live-game-header">
-        <button onClick={onDone}>Done</button>
-        <h2>{game.label ?? "Live Game"}</h2>
+        <button className="header-btn" onClick={onDone}>Terminer</button>
+        <h2>{game.label ?? "Match en direct"}</h2>
         <div className="live-game-actions">
           {onOpenSeason && (
-            <button onClick={() => onOpenSeason(game.homeTeamId)}>Season</button>
+            <button className="header-btn" onClick={() => onOpenSeason(game.homeTeamId)}>Saison</button>
           )}
-          <button onClick={() => setModal("sketch-board")}>Sketch Board</button>
-          <button onClick={() => setModal("shot-chart")}>Shot Chart</button>
-          <button onClick={() => setModal("box-score")}>Box Score</button>
+          <button className="header-btn" onClick={() => setModal("sketch-board")}>Tableau</button>
+          <button className="header-btn" onClick={() => setModal("shot-chart")}>Tirs</button>
+          <button className="header-btn" onClick={() => setModal("box-score")}>Stats</button>
           <SyncBadge status={syncStatus} />
         </div>
       </header>
 
       <div className="live-game-body">
-        <PlayByPlay events={events} players={players} opponentName={game.opponentName} onVoid={voidEvent} onUndoLast={undoLast} />
+        <div className="live-game-left">
+          <PlayerGrid
+            players={players}
+            roster={roster}
+            selectedPlayerId={entry.selectedPlayerId}
+            onSelect={handleSelectPlayer}
+          />
+        </div>
 
         <div className="live-game-center">
           <Scoreboard
-            homeTeamName="Home"
+            homeTeamName="Domicile"
             opponentName={game.opponentName}
             events={events}
             period={period}
@@ -122,25 +129,21 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
 
           {entry.pendingShot ? (
             <div className="shot-capture">
-              <p>Tap the court to record the shot location</p>
+              <p>Touchez le terrain pour enregistrer l'emplacement du tir</p>
               <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
-              <button onClick={() => dispatch({ type: "RESET" })}>Cancel</button>
+              <button className="cancel-btn" onClick={() => dispatch({ type: "RESET" })}>Annuler</button>
             </div>
           ) : (
-            <>
-              <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
-              <OpponentButtons onScore={(action) => void recordOpponentEvent(action)} />
-              <PlayerGrid
-                players={players}
-                roster={roster}
-                selectedPlayerId={entry.selectedPlayerId}
-                onSelect={handleSelectPlayer}
-              />
-            </>
+            <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
           )}
+          
+          <PlayByPlay events={events} players={players} opponentName={game.opponentName} onVoid={voidEvent} onUndoLast={undoLast} />
         </div>
 
-        <StatsPanel events={events} players={players} />
+        <div className="live-game-right">
+          <OpponentButtons opponentName={game.opponentName} onScore={(action) => void recordOpponentEvent(action)} />
+          <StatsPanel events={events} players={players} />
+        </div>
       </div>
 
       {modal === "box-score" && (
@@ -154,8 +157,8 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
       )}
       {modal === "shot-chart" && <ShotChartView events={events} players={players} onClose={() => setModal(null)} />}
       {modal === "sketch-board" && (
-        <Modal title="Sketch Board" onClose={() => setModal(null)}>
-          <p>Coming soon.</p>
+        <Modal title="Tableau Tactique" onClose={() => setModal(null)}>
+          <p>Bientôt disponible.</p>
         </Modal>
       )}
     </div>

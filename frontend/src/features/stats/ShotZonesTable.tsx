@@ -1,11 +1,11 @@
 import { zonePct, zonePerGame, type ShotZoneReport } from "../../domain/shotZones";
 
 const ZONE_LABELS: Record<string, string> = {
-  at_rim: "At rim",
-  paint: "Paint",
-  mid_range: "Mid-range",
-  corner_three: "Corner 3",
-  above_break_three: "Above break 3",
+  at_rim: "Sous le cercle",
+  paint: "Raquette",
+  mid_range: "Mi-distance",
+  corner_three: "3pts Corner",
+  above_break_three: "3pts Face",
 };
 
 function pct(value: number): string {
@@ -22,10 +22,10 @@ export function ShotZonesTable({ report }: ShotZonesTableProps) {
       <thead>
         <tr>
           <th>Zone</th>
-          <th>Made</th>
-          <th>Att</th>
+          <th>Marqués</th>
+          <th>Tentés</th>
           <th>%</th>
-          <th>/G</th>
+          <th>/M</th>
         </tr>
       </thead>
       <tbody>

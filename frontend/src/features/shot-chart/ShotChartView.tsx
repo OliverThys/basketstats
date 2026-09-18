@@ -14,7 +14,7 @@ const PERIOD_OPTIONS: Array<{ value: number | "all"; label: string }> = [
   { value: 3, label: "Q3" },
   { value: 4, label: "Q4" },
   { value: 5, label: "OT" },
-  { value: "all", label: "All" },
+  { value: "all", label: "Tous" },
 ];
 
 interface ShotChartViewProps {
@@ -64,7 +64,7 @@ export function ShotChartView({ events, players, onClose }: ShotChartViewProps) 
   }
 
   return (
-    <Modal title="Shot Chart" onClose={onClose}>
+    <Modal title="Tirs" onClose={onClose}>
       <div className="shot-chart-view">
         <div className="shot-chart-court">
           <FibaCourtSvg
@@ -86,8 +86,8 @@ export function ShotChartView({ events, players, onClose }: ShotChartViewProps) 
             ))}
           </div>
           <div className="shot-chart-select-actions">
-            <button onClick={() => setSelectedPlayerIds(new Set(players.map((p) => p.id)))}>Select All</button>
-            <button onClick={() => setSelectedPlayerIds(new Set())}>Deselect All</button>
+            <button onClick={() => setSelectedPlayerIds(new Set(players.map((p) => p.id)))}>Tout sélectionner</button>
+            <button onClick={() => setSelectedPlayerIds(new Set())}>Tout désélectionner</button>
           </div>
           <div className="shot-chart-periods">
             {PERIOD_OPTIONS.map((option) => (
@@ -101,7 +101,7 @@ export function ShotChartView({ events, players, onClose }: ShotChartViewProps) 
             ))}
           </div>
           <button className="shot-chart-export" onClick={() => void handleExport()}>
-            Export image
+            Exporter l'image
           </button>
           <section className="shot-zones-section">
             <h4>Zones</h4>

@@ -32,7 +32,7 @@ export function BoxScoreModal({ gameId, events, players, roster, onClose }: BoxS
   const zones = computeShotZones(events.filter((event) => !event.voided), 1);
 
   return (
-    <Modal title="Box Score" onClose={onClose}>
+    <Modal title="Statistiques (Box Score)" onClose={onClose}>
       <div className="export-actions">
         <button onClick={() => void downloadExport(`/games/${gameId}/box-score.csv`, `box-score-${gameId}.csv`)}>
           CSV
@@ -45,22 +45,22 @@ export function BoxScoreModal({ gameId, events, players, roster, onClose }: BoxS
         <table className="box-score-table">
           <thead>
             <tr>
-              <th>Player</th>
+              <th>Joueur</th>
               <th>MIN</th>
-              <th>FGM-A</th>
-              <th>2PM-A</th>
-              <th>3PM-A</th>
-              <th>FTM-A</th>
+              <th>TIR-T</th>
+              <th>2PT-T</th>
+              <th>3PT-T</th>
+              <th>LF-T</th>
               <th>OFF</th>
               <th>DEF</th>
               <th>TOT</th>
-              <th>AST</th>
-              <th>ST</th>
-              <th>TO</th>
-              <th>BS</th>
-              <th>PF</th>
-              <th>FPF</th>
-              <th>EFF</th>
+              <th>PAD</th>
+              <th>INT</th>
+              <th>BP</th>
+              <th>CTR</th>
+              <th>FTE</th>
+              <th>FPR</th>
+              <th>EVAL</th>
               <th>PTS</th>
               <th>+/-</th>
               <th>eFG%</th>
@@ -104,7 +104,7 @@ export function BoxScoreModal({ gameId, events, players, roster, onClose }: BoxS
               );
             })}
             <tr className="totals-row">
-              <td>Totals</td>
+              <td>Totaux</td>
               <td />
               <td>
                 {boxScore.totals.fgm}-{boxScore.totals.fga}
@@ -146,7 +146,7 @@ export function BoxScoreModal({ gameId, events, players, roster, onClose }: BoxS
         </table>
       </div>
       <section className="shot-zones-section">
-        <h4>Shot zones</h4>
+        <h4>Zones de tir</h4>
         <ShotZonesTable report={zones} />
       </section>
     </Modal>

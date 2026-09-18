@@ -62,8 +62,8 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
   return (
     <main className="app-shell season-stats-screen">
       <header className="season-stats-header">
-        <button onClick={onBack}>Back</button>
-        <h1>{teamQuery.data?.name ?? "Season stats"}</h1>
+        <button className="header-btn" onClick={onBack}>Retour</button>
+        <h1>{teamQuery.data?.name ?? "Stats de la saison"}</h1>
         <div className="export-actions">
           <button onClick={() => void downloadExport(`/teams/${teamId}/season-stats.csv`, `season-${teamId}.csv`)}>
             CSV
@@ -74,24 +74,24 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
         </div>
       </header>
 
-      {statsQuery.isError && <p>Could not load season stats. Check the Team ID and API.</p>}
-      {statsQuery.isLoading && <p>Loading season…</p>}
+      {statsQuery.isError && <p>Impossible de charger les stats de la saison. Vérifiez l'ID de l'équipe et l'API.</p>}
+      {statsQuery.isLoading && <p>Chargement de la saison…</p>}
 
       {statsQuery.data && (
         <>
           <p className="season-meta">
-            {statsQuery.data.games} games · DNP games excluded from per-game averages
+            {statsQuery.data.games} matchs · Les matchs non joués (DNP) sont exclus des moyennes par match
           </p>
           <div className="table-scroll">
             <table className="box-score-table">
               <thead>
                 <tr>
-                  <th>Player</th>
-                  <th>GP</th>
+                  <th>Joueur</th>
+                  <th>MJ</th>
                   <th>PTS</th>
-                  <th>PTS/G</th>
+                  <th>PTS/M</th>
                   <th>REB</th>
-                  <th>AST</th>
+                  <th>PAD</th>
                   <th>MIN</th>
                   <th>+/-</th>
                   <th>eFG%</th>
@@ -143,7 +143,7 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
 
       {zoneReport && (
         <section className="shot-zones-section">
-          <h2>Shot zones</h2>
+          <h2>Zones de tir</h2>
           <ShotZonesTable report={zoneReport} />
         </section>
       )}

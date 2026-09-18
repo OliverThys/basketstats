@@ -48,9 +48,9 @@ describe("LiveGameScreen", () => {
 
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
-    fireEvent.click(screen.getByText("Steal"));
+    fireEvent.click(screen.getByText("Interception"));
 
-    await waitFor(() => expect(screen.getByText(/Henry Domercant - Steal/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Henry Domercant - Interception/)).toBeInTheDocument());
 
     const stored = await db.gameEvents.where("gameId").equals("game-1").toArray();
     expect(stored).toHaveLength(1);
@@ -64,10 +64,10 @@ describe("LiveGameScreen", () => {
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
 
-    const madeButtons = screen.getAllByText("Made");
+    const madeButtons = screen.getAllByText("+2");
     fireEvent.click(madeButtons[0]); // 2pt Made
 
-    expect(await screen.findByText(/tap the court/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Touchez le terrain/i)).toBeInTheDocument();
 
     const pad = screen.getByTestId("shot-pad");
     vi.spyOn(pad, "getBoundingClientRect").mockReturnValue({
@@ -97,7 +97,7 @@ describe("LiveGameScreen", () => {
 
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
-    fireEvent.click(screen.getAllByText("Made")[0]);
+    fireEvent.click(screen.getAllByText("+2")[0]);
 
     const pad = await screen.findByTestId("shot-pad");
     vi.spyOn(pad, "getBoundingClientRect").mockReturnValue({
@@ -113,21 +113,21 @@ describe("LiveGameScreen", () => {
     } as DOMRect);
     fireEvent.click(pad, { clientX: 80, clientY: 50 });
 
-    await waitFor(() => expect(screen.getByText(/2pt Made/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/2 points marqués/)).toBeInTheDocument());
 
-    fireEvent.click(screen.getByText("Shot Chart"));
+    fireEvent.click(screen.getByText("Tirs"));
     expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(1);
   });
 
   it("shows advanced box-score columns and shot zones", async () => {
     render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
     await screen.findByRole("button", { name: /Henry Domercant/ });
-    fireEvent.click(screen.getByText("Box Score"));
+    fireEvent.click(screen.getByText("Stats"));
     expect(screen.getByText("MIN")).toBeInTheDocument();
     expect(screen.getByText("+/-")).toBeInTheDocument();
     expect(screen.getByText("eFG%")).toBeInTheDocument();
     expect(screen.getByText("TS%")).toBeInTheDocument();
-    expect(screen.getByText("At rim")).toBeInTheDocument();
+    expect(screen.getByText("Sous le cercle")).toBeInTheDocument();
   });
 
   it("undoes the last action by voiding it locally", async () => {
@@ -135,10 +135,10 @@ describe("LiveGameScreen", () => {
 
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
-    fireEvent.click(screen.getByText("Assist"));
-    await waitFor(() => expect(screen.getByText(/Henry Domercant - Assist/)).toBeInTheDocument());
+    fireEvent.click(screen.getByText("Passe"));
+    await waitFor(() => expect(screen.getByText(/Henry Domercant - Passe décisive/)).toBeInTheDocument());
 
-    fireEvent.click(screen.getByText("Undo last action"));
+    fireEvent.click(screen.getByText("Annuler la dernière action"));
 
     await waitFor(async () => {
       const stored = await db.gameEvents.where("gameId").equals("game-1").toArray();

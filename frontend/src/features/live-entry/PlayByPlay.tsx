@@ -20,7 +20,7 @@ function describeEvent(event: LocalGameEvent, playersById: Map<string, CachedPla
     return `${opponentName} - ${label}`;
   }
   const player = event.playerId ? playersById.get(event.playerId) : undefined;
-  const name = player ? `${player.firstName} ${player.lastName}` : "Unknown player";
+  const name = player ? `${player.firstName} ${player.lastName}` : "Joueur inconnu";
   return `${name} - ${label}`;
 }
 
@@ -33,11 +33,11 @@ export function PlayByPlay({ events, players, opponentName, onVoid, onUndoLast }
   return (
     <section className="play-by-play">
       <header>
-        <h3>Play by Play</h3>
-        <button onClick={() => setEditing((prev) => !prev)}>{editing ? "Done" : "Edit"}</button>
+        <h3>Actions</h3>
+        <button className="edit-btn" onClick={() => setEditing((prev) => !prev)}>{editing ? "Terminer" : "Modifier"}</button>
       </header>
       <button className="undo-last" disabled={!hasActiveEvents} onClick={onUndoLast}>
-        Undo last action
+        Annuler la dernière action
       </button>
       <ul>
         {visibleEvents.map((event) => (

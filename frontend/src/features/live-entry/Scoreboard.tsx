@@ -34,14 +34,16 @@ export function Scoreboard({
 
   return (
     <section className="scoreboard">
-      <div className="scoreboard-names">
-        <span>{homeTeamName}</span>
-        <span>{opponentName}</span>
-      </div>
       <div className="scoreboard-score">
-        <span>{overall.homeScore}</span>
-        <span className="scoreboard-sep">:</span>
-        <span>{overall.opponentScore}</span>
+        <div className="team-score">
+          <span className="team-name">{homeTeamName}</span>
+          <span className="score-value">{overall.homeScore}</span>
+        </div>
+        <span className="scoreboard-sep">-</span>
+        <div className="team-score">
+          <span className="score-value">{overall.opponentScore}</span>
+          <span className="team-name">{opponentName}</span>
+        </div>
       </div>
       <div className="scoreboard-periods">
         {PERIODS.map((p) => (
@@ -57,11 +59,11 @@ export function Scoreboard({
       <div className="scoreboard-step">
         <span className="step-label">{stepLabel}</span>
         <span className={inBonus ? "team-fouls bonus" : "team-fouls"}>
-          Team fouls: {teamFouls}
+          Fautes d'équipe: {teamFouls}
           {inBonus ? " (Bonus)" : ""}
         </span>
         <span className="quarter-score">
-          Quarter score: {periodScore.homeScore}:{periodScore.opponentScore}
+          Score du quart-temps: {periodScore.homeScore} - {periodScore.opponentScore}
         </span>
       </div>
     </section>

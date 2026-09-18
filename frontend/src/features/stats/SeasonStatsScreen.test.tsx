@@ -66,7 +66,7 @@ describe("SeasonStatsScreen", () => {
     expect(await screen.findByText("BC Spartak")).toBeInTheDocument();
     expect(screen.getByText("Henry Domercant")).toBeInTheDocument();
     expect(screen.getByText("15.0")).toBeInTheDocument();
-    expect(screen.getByText("At rim")).toBeInTheDocument();
-    expect(screen.getByText(/DNP games excluded/)).toBeInTheDocument();
+    expect(screen.getByText("Sous le cercle")).toBeInTheDocument();
+    expect(screen.getByText(/Les matchs non joués \(DNP\) sont exclus/)).toBeInTheDocument();
   });
 });

@@ -32,7 +32,7 @@ function GameLoader({
   return (
     <main className="app-shell">
       <h1>BasketStats</h1>
-      <p>FIBA basketball stats, offline-first.</p>
+      <p>Statistiques de basketball FIBA, hors ligne d'abord.</p>
       <ApiStatus />
       <form
         className="game-loader"
@@ -41,14 +41,14 @@ function GameLoader({
           if (gameId.trim()) onOpenGame(gameId.trim());
         }}
       >
-        <label htmlFor="game-id">Game ID</label>
+        <label htmlFor="game-id">ID du match</label>
         <input
           id="game-id"
           value={gameId}
           onChange={(event) => setGameId(event.target.value)}
-          placeholder="Paste a game ID (see scripts/seed_demo.py)"
+          placeholder="Collez un ID de match"
         />
-        <button type="submit">Open live entry</button>
+        <button type="submit">Ouvrir le match</button>
       </form>
       <form
         className="game-loader"
@@ -57,14 +57,14 @@ function GameLoader({
           if (teamId.trim()) onOpenSeason(teamId.trim());
         }}
       >
-        <label htmlFor="team-id">Team ID</label>
+        <label htmlFor="team-id">ID de l'équipe</label>
         <input
           id="team-id"
           value={teamId}
           onChange={(event) => setTeamId(event.target.value)}
-          placeholder="Paste a team ID for season stats"
+          placeholder="Collez un ID d'équipe pour la saison"
         />
-        <button type="submit">Open season stats</button>
+        <button type="submit">Stats de la saison</button>
       </form>
     </main>
   );
@@ -74,7 +74,7 @@ function ApiStatus() {
   const { data, isLoading, isError } = useQuery({ queryKey: ["health"], queryFn: fetchHealth });
   return (
     <p data-testid="api-status">
-      API status: {isLoading ? "checking..." : isError ? "unreachable" : data?.status}
+      Statut API: {isLoading ? "vérification..." : isError ? "inaccessible" : data?.status}
     </p>
   );
 }
