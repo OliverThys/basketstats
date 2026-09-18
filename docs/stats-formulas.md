@@ -26,7 +26,16 @@ eFG% = (FGM + 0.5*FG3_MADE) / FGA
 TS%  = PTS / (2*(FGA + 0.44*FTA))
 ```
 
-`+/-` et minutes dérivés des paires `SUB_IN`/`SUB_OUT`.
+`+/-` et minutes dérivés des titulaires + paires `SUB_IN`/`SUB_OUT` et
+du chronomètre `MM:SS` restant (Q1–Q4 = 10 min, OT = 5 min). Sans chrono
+enregistré, les minutes créditées sont la durée restante de la période.
+
+Les matchs DNP d'un joueur sont exclus de `games_played` et des moyennes
+par match.
+
+Zones de tir (demi-terrain FIBA, coordonnées normalisées 0–1) :
+`at_rim`, `paint`, `mid_range`, `corner_three`, `above_break_three`.
+Chaque zone expose Total / Percent / Per Game.
 
 Implémenté dans `backend/app/domain/box_score.py` : moteur pur
 (`compute_box_score`), sans dépendance à SQLAlchemy, testé dans

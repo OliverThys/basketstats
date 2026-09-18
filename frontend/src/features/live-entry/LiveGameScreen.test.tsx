@@ -119,6 +119,17 @@ describe("LiveGameScreen", () => {
     expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(1);
   });
 
+  it("shows advanced box-score columns and shot zones", async () => {
+    render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
+    await screen.findByRole("button", { name: /Henry Domercant/ });
+    fireEvent.click(screen.getByText("Box Score"));
+    expect(screen.getByText("MIN")).toBeInTheDocument();
+    expect(screen.getByText("+/-")).toBeInTheDocument();
+    expect(screen.getByText("eFG%")).toBeInTheDocument();
+    expect(screen.getByText("TS%")).toBeInTheDocument();
+    expect(screen.getByText("At rim")).toBeInTheDocument();
+  });
+
   it("undoes the last action by voiding it locally", async () => {
     render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
 

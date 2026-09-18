@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 
+import { computeShotZones } from "../../domain/shotZones";
 import type { CachedPlayer, LocalGameEvent } from "../../offline/db";
 import { Modal } from "../live-entry/Modal";
+import { ShotZonesTable } from "../stats/ShotZonesTable";
 import { exportShotChartImage } from "./exportShotChartImage";
 import { FibaCourtSvg } from "./FibaCourtSvg";
 import { extractShotEntries, filterShotEntries } from "./shotFilters";
@@ -32,6 +34,19 @@ export function ShotChartView({ events, players, onClose }: ShotChartViewProps) 
   const filtered = useMemo(
     () => filterShotEntries(entries, { selectedPlayerIds, period }),
     [entries, selectedPlayerIds, period],
+  );
+  const zoneReport = useMemo(
+    () =>
+      computeShotZones(
+        events.filter((event) => {
+          if (event.voided) return false;
+          if (event.playerId && !selectedPlayerIds.has(event.playerId)) return false;
+          if (period !== "all" && event.period !== period) return false;
+          return true;
+        }),
+        1,
+      ),
+    [events, selectedPlayerIds, period],
   );
 
   function togglePlayer(playerId: string) {
@@ -88,6 +103,10 @@ export function ShotChartView({ events, players, onClose }: ShotChartViewProps) 
           <button className="shot-chart-export" onClick={() => void handleExport()}>
             Export image
           </button>
+          <section className="shot-zones-section">
+            <h4>Zones</h4>
+            <ShotZonesTable report={zoneReport} />
+          </section>
         </div>
       </div>
     </Modal>

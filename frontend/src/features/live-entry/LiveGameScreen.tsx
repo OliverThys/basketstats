@@ -19,9 +19,10 @@ import { useLiveGame } from "./useLiveGame";
 interface LiveGameScreenProps {
   gameId: string;
   onDone: () => void;
+  onOpenSeason?: (teamId: string) => void;
 }
 
-export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
+export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenProps) {
   const { game, players, roster, events, loadError, syncStatus, recordEvent, voidEvent, undoLast } =
     useLiveGame(gameId);
   const [entry, dispatch] = useReducer(entryReducer, initialEntryState);
@@ -96,6 +97,9 @@ export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
         <button onClick={onDone}>Done</button>
         <h2>{game.label ?? "Live Game"}</h2>
         <div className="live-game-actions">
+          {onOpenSeason && (
+            <button onClick={() => onOpenSeason(game.homeTeamId)}>Season</button>
+          )}
           <button onClick={() => setModal("sketch-board")}>Sketch Board</button>
           <button onClick={() => setModal("shot-chart")}>Shot Chart</button>
           <button onClick={() => setModal("box-score")}>Box Score</button>
@@ -139,7 +143,15 @@ export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
         <StatsPanel events={events} players={players} />
       </div>
 
-      {modal === "box-score" && <BoxScoreModal events={events} players={players} onClose={() => setModal(null)} />}
+      {modal === "box-score" && (
+        <BoxScoreModal
+          gameId={gameId}
+          events={events}
+          players={players}
+          roster={roster}
+          onClose={() => setModal(null)}
+        />
+      )}
       {modal === "shot-chart" && <ShotChartView events={events} players={players} onClose={() => setModal(null)} />}
       {modal === "sketch-board" && (
         <Modal title="Sketch Board" onClose={() => setModal(null)}>

@@ -1,15 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.domain.box_score import GameEventRecord, compute_box_score
+from app.exports import box_score_csv, box_score_pdf, shot_zones_csv
 from app.models import Game, GameEvent, GameRoster
 from app.schemas.box_score import GameBoxScoreOut
 from app.schemas.game import GameCreate, GameRead, GameUpdate
 from app.schemas.game_event import GameEventBatchIn, GameEventBatchResult, GameEventRead
 from app.schemas.game_roster import GameRosterCreate, GameRosterRead, GameRosterUpdate
+from app.schemas.season import ShotZoneReportOut
+from app.services.stats_queries import (
+    build_game_box_score,
+    build_game_shot_zones,
+    player_display_names,
+)
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -155,9 +162,47 @@ def void_event(game_id: str, event_id: str, db: Session = Depends(get_db)) -> No
 
 @router.get("/{game_id}/box-score", response_model=GameBoxScoreOut)
 def get_box_score(game_id: str, db: Session = Depends(get_db)) -> GameBoxScoreOut:
-    _get_game_or_404(game_id, db)
-    events = db.scalars(
-        select(GameEvent).where(GameEvent.game_id == game_id, GameEvent.voided.is_(False))
+    game = _get_game_or_404(game_id, db)
+    return GameBoxScoreOut.from_domain(build_game_box_score(db, game.id))
+
+
+@router.get("/{game_id}/box-score.csv")
+def get_box_score_csv(game_id: str, db: Session = Depends(get_db)) -> Response:
+    game = _get_game_or_404(game_id, db)
+    names = player_display_names(db, game.home_team_id)
+    content = box_score_csv(build_game_box_score(db, game.id), names)
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="box-score-{game_id}.csv"'},
     )
-    records = [GameEventRecord.from_orm(event) for event in events]
-    return GameBoxScoreOut.from_domain(compute_box_score(records))
+
+
+@router.get("/{game_id}/box-score.pdf")
+def get_box_score_pdf(game_id: str, db: Session = Depends(get_db)) -> Response:
+    game = _get_game_or_404(game_id, db)
+    names = player_display_names(db, game.home_team_id)
+    title = f"{game.label or 'Box score'} vs {game.opponent_name}"
+    content = box_score_pdf(build_game_box_score(db, game.id), names, title)
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="box-score-{game_id}.pdf"'},
+    )
+
+
+@router.get("/{game_id}/shot-zones", response_model=ShotZoneReportOut)
+def get_game_shot_zones(game_id: str, db: Session = Depends(get_db)) -> ShotZoneReportOut:
+    _get_game_or_404(game_id, db)
+    return ShotZoneReportOut.from_domain(build_game_shot_zones(db, game_id))
+
+
+@router.get("/{game_id}/shot-zones.csv")
+def get_game_shot_zones_csv(game_id: str, db: Session = Depends(get_db)) -> Response:
+    _get_game_or_404(game_id, db)
+    content = shot_zones_csv(build_game_shot_zones(db, game_id))
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="shot-zones-{game_id}.csv"'},
+    )

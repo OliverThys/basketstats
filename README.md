@@ -94,6 +94,14 @@ n'importe quel ordre), le shot chart inline pour les tirs, le play-by-play
 éditable avec undo, le panneau de stats live et l'indicateur de synchronisation
 (Synced / Sync pending / Offline).
 
+Le **box score** (bouton dans l'en-tête live) affiche toutes les colonnes, la
+ligne Totals avec %, plus MIN / +/- / eFG% / TS%, les zones de tir, et des
+exports CSV/PDF. Les **stats de saison** s'ouvrent depuis le bouton Season
+pendant un match, ou via le champ Team ID de l'accueil (`/?team=<id>`) : totaux
+et moyennes (DNP exclus), split par adversaire, zones de tir, CSV/PDF. Les
+agrégations lourdes peuvent passer par Celery (`POST /teams/{id}/season-stats/jobs`)
+quand le worker Docker tourne.
+
 La vue **Shot Chart** (bouton dans l'en-tête live) affiche les tirs FG2/FG3
 sur un demi-terrain FIBA (ligne à 3 pts 6,75 m / 6,60 m dans les coins,
 raquette rectangulaire). Filtres par joueur (Select All / Deselect All) et par

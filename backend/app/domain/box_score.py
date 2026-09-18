@@ -7,7 +7,7 @@ exports, etc). Callers adapt ORM rows to `GameEventRecord` via `from_orm`.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 
 from app.models.enums import ActionType, EventActor
@@ -19,6 +19,11 @@ class GameEventRecord:
     actor: EventActor
     player_id: str | None = None
     voided: bool = False
+    seq: int = 0
+    period: int = 1
+    game_clock: str | None = None
+    x: float | None = None
+    y: float | None = None
 
     @classmethod
     def from_orm(cls, event: object) -> GameEventRecord:
@@ -27,6 +32,11 @@ class GameEventRecord:
             actor=event.actor,  # type: ignore[attr-defined]
             player_id=event.player_id,  # type: ignore[attr-defined]
             voided=event.voided,  # type: ignore[attr-defined]
+            seq=getattr(event, "seq", 0),
+            period=getattr(event, "period", 1),
+            game_clock=getattr(event, "game_clock", None),
+            x=getattr(event, "x", None),
+            y=getattr(event, "y", None),
         )
 
 
@@ -71,6 +81,15 @@ class _ShootingLine:
     def ft_pct(self) -> float:
         return _pct(self.ftm, self.fta)
 
+    @property
+    def efg_pct(self) -> float:
+        return (self.fgm + 0.5 * self.fg3m) / self.fga if self.fga else 0.0
+
+    @property
+    def ts_pct(self) -> float:
+        denom = 2 * (self.fga + 0.44 * self.fta)
+        return self.pts / denom if denom else 0.0
+
 
 @dataclass
 class PlayerBoxScore(_ShootingLine):
@@ -83,10 +102,16 @@ class PlayerBoxScore(_ShootingLine):
     blk: int = 0
     pf: int = 0
     fpf: int = 0
+    plus_minus: int = 0
+    minutes_s: int = 0
 
     @property
     def reb_tot(self) -> int:
         return self.reb_off + self.reb_def
+
+    @property
+    def minutes(self) -> float:
+        return self.minutes_s / 60.0
 
     @property
     def eff(self) -> int:
@@ -153,17 +178,21 @@ _OPPONENT_POINTS_BY_ACTION: dict[ActionType, int] = {
 _OPPONENT_IGNORED_ACTIONS = frozenset({ActionType.OPP_FOUL})
 
 
-def compute_box_score(events: Iterable[GameEventRecord]) -> GameBoxScore:
+def compute_box_score(
+    events: Iterable[GameEventRecord],
+    starter_ids: Iterable[str] | None = None,
+) -> GameBoxScore:
     players: dict[str, PlayerBoxScore] = {}
     home_score = 0
     opponent_score = 0
+    records = list(events)
 
     def player_row(player_id: str) -> PlayerBoxScore:
         if player_id not in players:
             players[player_id] = PlayerBoxScore(player_id=player_id)
         return players[player_id]
 
-    for event in events:
+    for event in records:
         if event.voided:
             continue
 
@@ -195,7 +224,7 @@ def compute_box_score(events: Iterable[GameEventRecord]) -> GameBoxScore:
                 field_name = _HOME_STAT_FIELD_BY_ACTION[action]
                 setattr(row, field_name, getattr(row, field_name) + 1)
             elif action in _HOME_IGNORED_ACTIONS:
-                pass  # substitutions feed minutes / +- derivation in a later phase
+                pass  # substitutions feed minutes / +/- after counting stats
             else:
                 raise ValueError(f"Unsupported home_player action_type: {action}")
 
@@ -227,9 +256,97 @@ def compute_box_score(events: Iterable[GameEventRecord]) -> GameBoxScore:
         totals.pf += row.pf
         totals.fpf += row.fpf
 
+    active = [event for event in records if not event.voided]
+    _apply_lineup_stats(players, player_row, active, starter_ids)
+
     return GameBoxScore(
         players=players,
         totals=totals,
         home_score=home_score,
         opponent_score=opponent_score,
     )
+
+
+def period_length_s(period: int) -> int:
+    return 600 if period <= 4 else 300
+
+
+def parse_game_clock(clock: str | None) -> int | None:
+    if not clock:
+        return None
+    parts = clock.split(":")
+    if len(parts) != 2:
+        return None
+    try:
+        return int(parts[0]) * 60 + int(parts[1])
+    except ValueError:
+        return None
+
+
+def _apply_lineup_stats(
+    players: dict[str, PlayerBoxScore],
+    player_row: Callable[[str], PlayerBoxScore],
+    events: list[GameEventRecord],
+    starter_ids: Iterable[str] | None,
+) -> None:
+    ordered = sorted(events, key=lambda event: (event.period, event.seq))
+    on_court: set[str] = set(starter_ids or [])
+    check_in: dict[str, int | None] = {}
+    current_period: int | None = None
+    remaining: int | None = None
+
+    def close_period() -> None:
+        for pid in on_court:
+            start = check_in.get(pid)
+            if start is not None:
+                player_row(pid).minutes_s += max(start, 0)
+
+    def tick_clock(new_remaining: int) -> None:
+        for pid in on_court:
+            start = check_in.get(pid)
+            if start is not None:
+                player_row(pid).minutes_s += max(start - new_remaining, 0)
+            check_in[pid] = new_remaining
+
+    for event in ordered:
+        if event.period != current_period:
+            if current_period is not None:
+                close_period()
+            current_period = event.period
+            remaining = period_length_s(event.period)
+            for pid in on_court:
+                check_in[pid] = remaining
+
+        clock = parse_game_clock(event.game_clock)
+        if clock is not None:
+            tick_clock(clock)
+            remaining = clock
+
+        if event.actor == EventActor.HOME_PLAYER and event.player_id:
+            if event.action_type == ActionType.SUB_IN:
+                on_court.add(event.player_id)
+                check_in[event.player_id] = remaining
+            elif event.action_type == ActionType.SUB_OUT:
+                close_start = check_in.pop(event.player_id, None)
+                if close_start is not None and remaining is not None:
+                    player_row(event.player_id).minutes_s += max(close_start - remaining, 0)
+                on_court.discard(event.player_id)
+
+        delta = 0
+        if event.actor == EventActor.HOME_PLAYER:
+            if event.action_type == ActionType.FG2_MADE:
+                delta = 2
+            elif event.action_type == ActionType.FG3_MADE:
+                delta = 3
+            elif event.action_type == ActionType.FT_MADE:
+                delta = 1
+        elif (
+            event.actor == EventActor.OPPONENT_TEAM
+            and event.action_type in _OPPONENT_POINTS_BY_ACTION
+        ):
+            delta = -_OPPONENT_POINTS_BY_ACTION[event.action_type]
+        if delta:
+            for pid in on_court:
+                player_row(pid).plus_minus += delta
+
+    close_period()

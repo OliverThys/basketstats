@@ -88,6 +88,8 @@ describe("computeBoxScore", () => {
     expect(row.pts).toBe(21);
     expect(row.rebTot).toBe(11);
     expect(row.eff).toBe(35);
+    expect(row.efgPct).toBeCloseTo(0.7);
+    expect(row.tsPct).toBeCloseTo(21 / (2 * (10 + 0.44 * 10)));
   });
 
   it("only lets opponent events affect the opponent score", () => {

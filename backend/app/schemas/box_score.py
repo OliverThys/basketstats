@@ -24,6 +24,10 @@ class PlayerBoxScoreOut(BaseModel):
     fpf: int
     eff: int
     pts: int
+    efg_pct: float
+    ts_pct: float
+    plus_minus: int
+    minutes: float
 
     @classmethod
     def from_domain(cls, row: PlayerBoxScore) -> "PlayerBoxScoreOut":
@@ -48,6 +52,10 @@ class PlayerBoxScoreOut(BaseModel):
             fpf=row.fpf,
             eff=row.eff,
             pts=row.pts,
+            efg_pct=row.efg_pct,
+            ts_pct=row.ts_pct,
+            plus_minus=row.plus_minus,
+            minutes=row.minutes,
         )
 
 
@@ -75,6 +83,8 @@ class TeamTotalsOut(BaseModel):
     fg2_pct: float
     fg3_pct: float
     ft_pct: float
+    efg_pct: float
+    ts_pct: float
 
     @classmethod
     def from_domain(cls, totals: TeamTotals) -> "TeamTotalsOut":
@@ -102,6 +112,8 @@ class TeamTotalsOut(BaseModel):
             fg2_pct=totals.fg2_pct,
             fg3_pct=totals.fg3_pct,
             ft_pct=totals.ft_pct,
+            efg_pct=totals.efg_pct,
+            ts_pct=totals.ts_pct,
         )
 
 

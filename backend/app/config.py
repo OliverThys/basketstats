@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-secret-change-me"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24
+    celery_enabled: bool = False
 
 
 settings = Settings()

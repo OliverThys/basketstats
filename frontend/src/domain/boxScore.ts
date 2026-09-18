@@ -10,6 +10,11 @@ export interface GameEventRecord {
   actor: EventActor;
   playerId?: string | null;
   voided?: boolean;
+  seq?: number;
+  period?: number;
+  gameClock?: string | null;
+  x?: number | null;
+  y?: number | null;
 }
 
 function pct(made: number, attempted: number): number {
@@ -51,6 +56,15 @@ export class ShootingLine {
   get ftPct(): number {
     return pct(this.ftm, this.fta);
   }
+
+  get efgPct(): number {
+    return this.fga ? (this.fgm + 0.5 * this.fg3m) / this.fga : 0;
+  }
+
+  get tsPct(): number {
+    const denom = 2 * (this.fga + 0.44 * this.fta);
+    return denom ? this.pts / denom : 0;
+  }
 }
 
 type MutableCountField = "rebOff" | "rebDef" | "ast" | "stl" | "tov" | "blk" | "pf" | "fpf";
@@ -65,6 +79,8 @@ export class PlayerBoxScore extends ShootingLine {
   blk = 0;
   pf = 0;
   fpf = 0;
+  plusMinus = 0;
+  minutesS = 0;
 
   constructor(playerId: string) {
     super();
@@ -73,6 +89,10 @@ export class PlayerBoxScore extends ShootingLine {
 
   get rebTot(): number {
     return this.rebOff + this.rebDef;
+  }
+
+  get minutes(): number {
+    return this.minutesS / 60;
   }
 
   get eff(): number {
@@ -145,10 +165,14 @@ const OPPONENT_POINTS_BY_ACTION: Partial<Record<ActionType, number>> = {
 
 const OPPONENT_IGNORED_ACTIONS = new Set<ActionType>([ActionType.OPP_FOUL]);
 
-export function computeBoxScore(events: Iterable<GameEventRecord>): GameBoxScore {
+export function computeBoxScore(
+  events: Iterable<GameEventRecord>,
+  starterIds: Iterable<string> = [],
+): GameBoxScore {
   const players = new Map<string, PlayerBoxScore>();
   let homeScore = 0;
   let opponentScore = 0;
+  const records = [...events];
 
   function playerRow(playerId: string): PlayerBoxScore {
     let row = players.get(playerId);
@@ -159,7 +183,7 @@ export function computeBoxScore(events: Iterable<GameEventRecord>): GameBoxScore
     return row;
   }
 
-  for (const event of events) {
+  for (const event of records) {
     if (event.voided) continue;
 
     if (event.actor === "home_player") {
@@ -227,5 +251,92 @@ export function computeBoxScore(events: Iterable<GameEventRecord>): GameBoxScore
     totals.fpf += row.fpf;
   }
 
+  applyLineupStats(playerRow, records.filter((event) => !event.voided), starterIds);
+
   return { players, totals, homeScore, opponentScore };
+}
+
+export function periodLengthS(period: number): number {
+  return period <= 4 ? 600 : 300;
+}
+
+export function parseGameClock(clock: string | null | undefined): number | null {
+  if (!clock) return null;
+  const parts = clock.split(":");
+  if (parts.length !== 2) return null;
+  const minutes = Number(parts[0]);
+  const seconds = Number(parts[1]);
+  if (Number.isNaN(minutes) || Number.isNaN(seconds)) return null;
+  return minutes * 60 + seconds;
+}
+
+function applyLineupStats(
+  playerRow: (playerId: string) => PlayerBoxScore,
+  events: GameEventRecord[],
+  starterIds: Iterable<string>,
+): void {
+  const ordered = [...events].sort((a, b) => (a.period ?? 1) - (b.period ?? 1) || (a.seq ?? 0) - (b.seq ?? 0));
+  const onCourt = new Set(starterIds);
+  const checkIn = new Map<string, number | null>();
+  let currentPeriod: number | null = null;
+  let remaining: number | null = null;
+
+  function closePeriod() {
+    for (const playerId of onCourt) {
+      const start = checkIn.get(playerId);
+      if (start != null) playerRow(playerId).minutesS += Math.max(start, 0);
+    }
+  }
+
+  function tickClock(newRemaining: number) {
+    for (const playerId of onCourt) {
+      const start = checkIn.get(playerId);
+      if (start != null) playerRow(playerId).minutesS += Math.max(start - newRemaining, 0);
+      checkIn.set(playerId, newRemaining);
+    }
+  }
+
+  for (const event of ordered) {
+    const period = event.period ?? 1;
+    if (period !== currentPeriod) {
+      if (currentPeriod != null) closePeriod();
+      currentPeriod = period;
+      remaining = periodLengthS(period);
+      for (const playerId of onCourt) checkIn.set(playerId, remaining);
+    }
+
+    const clock = parseGameClock(event.gameClock);
+    if (clock != null) {
+      tickClock(clock);
+      remaining = clock;
+    }
+
+    if (event.actor === "home_player" && event.playerId) {
+      if (event.actionType === ActionType.SUB_IN) {
+        onCourt.add(event.playerId);
+        checkIn.set(event.playerId, remaining);
+      } else if (event.actionType === ActionType.SUB_OUT) {
+        const start = checkIn.get(event.playerId);
+        if (start != null && remaining != null) {
+          playerRow(event.playerId).minutesS += Math.max(start - remaining, 0);
+        }
+        checkIn.delete(event.playerId);
+        onCourt.delete(event.playerId);
+      }
+    }
+
+    let delta = 0;
+    if (event.actor === "home_player") {
+      if (event.actionType === ActionType.FG2_MADE) delta = 2;
+      else if (event.actionType === ActionType.FG3_MADE) delta = 3;
+      else if (event.actionType === ActionType.FT_MADE) delta = 1;
+    } else if (event.actionType in OPPONENT_POINTS_BY_ACTION) {
+      delta = -(OPPONENT_POINTS_BY_ACTION[event.actionType] ?? 0);
+    }
+    if (delta) {
+      for (const playerId of onCourt) playerRow(playerId).plusMinus += delta;
+    }
+  }
+
+  closePeriod();
 }

@@ -24,4 +24,10 @@ describe("App", () => {
     renderWithClient(<App />);
     expect(await screen.findByText(/API status: ok/)).toBeInTheDocument();
   });
+
+  it("offers a team ID field for season stats", () => {
+    renderWithClient(<App />);
+    expect(screen.getByLabelText("Team ID")).toBeInTheDocument();
+    expect(screen.getByText("Open season stats")).toBeInTheDocument();
+  });
 });
