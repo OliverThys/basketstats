@@ -64,8 +64,8 @@ describe("LiveGameScreen", () => {
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
 
-    const madeButtons = screen.getAllByText("+2");
-    fireEvent.click(madeButtons[0]); // 2pt Made
+    const madeButtons = screen.getAllByText("Réussi");
+    fireEvent.click(madeButtons[0]); // 2PT Made (first field-goal group)
 
     expect(await screen.findByText(/Touchez le terrain/i)).toBeInTheDocument();
 
@@ -97,7 +97,7 @@ describe("LiveGameScreen", () => {
 
     const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
-    fireEvent.click(screen.getAllByText("+2")[0]);
+    fireEvent.click(screen.getAllByText("Réussi")[0]);
 
     const pad = await screen.findByTestId("shot-pad");
     vi.spyOn(pad, "getBoundingClientRect").mockReturnValue({
@@ -116,7 +116,8 @@ describe("LiveGameScreen", () => {
     await waitFor(() => expect(screen.getByText(/2 points marqués/)).toBeInTheDocument());
 
     fireEvent.click(screen.getByText("Tirs"));
-    expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(1);
+    const modal = document.querySelector(".modal-panel") as HTMLElement;
+    expect(modal.querySelectorAll(".shot-marker-made")).toHaveLength(1);
   });
 
   it("shows advanced box-score columns and shot zones", async () => {

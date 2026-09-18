@@ -6,6 +6,7 @@ import { BoxScoreModal } from "./BoxScoreModal";
 import { entryReducer, initialEntryState, isReadyForImmediateEvent } from "./entryReducer";
 import { Modal } from "./Modal";
 import { OpponentButtons } from "./OpponentButtons";
+import { PersonalFouls } from "./PersonalFouls";
 import { PlayByPlay } from "./PlayByPlay";
 import { PlayerGrid } from "./PlayerGrid";
 import { Scoreboard } from "./Scoreboard";
@@ -92,75 +93,84 @@ export function LiveGameScreen({ gameId, onDone, onOpenSeason }: LiveGameScreenP
       : "1ère étape: sélectionnez joueur ou stat";
 
   return (
-    <div className="live-game-screen">
-      <header className="live-game-header">
-        <button className="header-btn" onClick={onDone}>Terminer</button>
-        <h2>{game.label ?? "Match en direct"}</h2>
-        <div className="live-game-actions">
-          {onOpenSeason && (
-            <button className="header-btn" onClick={() => onOpenSeason(game.homeTeamId)}>Saison</button>
-          )}
-          <button className="header-btn" onClick={() => setModal("sketch-board")}>Tableau</button>
-          <button className="header-btn" onClick={() => setModal("shot-chart")}>Tirs</button>
-          <button className="header-btn" onClick={() => setModal("box-score")}>Stats</button>
-          <SyncBadge status={syncStatus} />
-        </div>
-      </header>
+    <div className="live-game-frame">
+      <div className="live-game-screen">
+        <header className="live-game-header">
+          <button className="header-btn" onClick={onDone}>Terminer</button>
+          <h2>{game.label ?? "Match en direct"}</h2>
+          <div className="live-game-actions">
+            {onOpenSeason && (
+              <button className="header-btn" onClick={() => onOpenSeason(game.homeTeamId)}>Saison</button>
+            )}
+            <button className="header-btn" onClick={() => setModal("sketch-board")}>Tableau</button>
+            <button className="header-btn" onClick={() => setModal("shot-chart")}>Tirs</button>
+            <button className="header-btn" onClick={() => setModal("box-score")}>Stats</button>
+            <SyncBadge status={syncStatus} />
+          </div>
+        </header>
 
-      <div className="live-game-body">
-        <div className="live-game-left">
-          <PlayerGrid
+        <div className="live-game-columns">
+          <div className="live-game-main">
+            <div className="live-game-top-row">
+              <PlayByPlay events={events} players={players} opponentName={game.opponentName} onVoid={voidEvent} onUndoLast={undoLast} />
+              <Scoreboard
+                homeTeamName="Domicile"
+                opponentName={game.opponentName}
+                events={events}
+                period={period}
+                onSelectPeriod={setPeriod}
+                stepLabel={stepLabel}
+              />
+            </div>
+
+            {entry.pendingShot ? (
+              <div className="shot-capture">
+                <p>Touchez le terrain pour enregistrer l'emplacement du tir</p>
+                <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
+                <button className="cancel-btn" onClick={() => dispatch({ type: "RESET" })}>Annuler</button>
+              </div>
+            ) : (
+              <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
+            )}
+
+            <div className="live-game-bottom-row">
+              <PlayerGrid
+                players={players}
+                roster={roster}
+                selectedPlayerId={entry.selectedPlayerId}
+                onSelect={handleSelectPlayer}
+              />
+              <div className="side-actions">
+                <PersonalFouls selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
+                <OpponentButtons opponentName={game.opponentName} onScore={(action) => void recordOpponentEvent(action)} />
+              </div>
+            </div>
+          </div>
+
+          <div className="live-game-sidebar">
+            <StatsPanel events={events} players={players} />
+            <div className="shot-chart-mini">
+              <ShotPad markers={shotMarkers} interactive={false} />
+            </div>
+          </div>
+        </div>
+
+        {modal === "box-score" && (
+          <BoxScoreModal
+            gameId={gameId}
+            events={events}
             players={players}
             roster={roster}
-            selectedPlayerId={entry.selectedPlayerId}
-            onSelect={handleSelectPlayer}
+            onClose={() => setModal(null)}
           />
-        </div>
-
-        <div className="live-game-center">
-          <Scoreboard
-            homeTeamName="Domicile"
-            opponentName={game.opponentName}
-            events={events}
-            period={period}
-            onSelectPeriod={setPeriod}
-            stepLabel={stepLabel}
-          />
-
-          {entry.pendingShot ? (
-            <div className="shot-capture">
-              <p>Touchez le terrain pour enregistrer l'emplacement du tir</p>
-              <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
-              <button className="cancel-btn" onClick={() => dispatch({ type: "RESET" })}>Annuler</button>
-            </div>
-          ) : (
-            <ActionButtons selectedAction={entry.selectedAction} onSelect={handleSelectAction} />
-          )}
-          
-          <PlayByPlay events={events} players={players} opponentName={game.opponentName} onVoid={voidEvent} onUndoLast={undoLast} />
-        </div>
-
-        <div className="live-game-right">
-          <OpponentButtons opponentName={game.opponentName} onScore={(action) => void recordOpponentEvent(action)} />
-          <StatsPanel events={events} players={players} />
-        </div>
+        )}
+        {modal === "shot-chart" && <ShotChartView events={events} players={players} onClose={() => setModal(null)} />}
+        {modal === "sketch-board" && (
+          <Modal title="Tableau Tactique" onClose={() => setModal(null)}>
+            <p>Bientôt disponible.</p>
+          </Modal>
+        )}
       </div>
-
-      {modal === "box-score" && (
-        <BoxScoreModal
-          gameId={gameId}
-          events={events}
-          players={players}
-          roster={roster}
-          onClose={() => setModal(null)}
-        />
-      )}
-      {modal === "shot-chart" && <ShotChartView events={events} players={players} onClose={() => setModal(null)} />}
-      {modal === "sketch-board" && (
-        <Modal title="Tableau Tactique" onClose={() => setModal(null)}>
-          <p>Bientôt disponible.</p>
-        </Modal>
-      )}
     </div>
   );
 }

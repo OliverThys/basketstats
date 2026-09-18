@@ -50,7 +50,7 @@ export function ShotPad({ markers, onPick, interactive = true }: ShotPadProps) {
       className="shot-pad"
       onClick={handleClick}
       role={interactive ? "button" : undefined}
-      data-testid="shot-pad"
+      data-testid={interactive ? "shot-pad" : "shot-pad-mini"}
     >
       <FibaCourtSvg markers={markers} />
     </div>
