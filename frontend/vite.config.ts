@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
@@ -19,7 +22,7 @@ export default defineConfig({
         start_url: "/",
         icons: [{ src: "favicon.svg", sizes: "any", type: "image/svg+xml" }],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
       },
     }),
@@ -32,5 +35,6 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**"],
   },
 });

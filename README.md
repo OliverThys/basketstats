@@ -59,6 +59,7 @@ Tests :
 ```bash
 cd frontend
 npm run test
+npm run test:e2e   # Playwright : coupure réseau + reload, sans perte ni doublon
 ```
 
 Lint / format :
@@ -101,6 +102,11 @@ quart (Q1–Q4 / OT / All), marqueurs made (cercle) / missed (croix), export PNG
 Tout event est d'abord écrit dans IndexedDB (Dexie) puis synchronisé vers l'API
 dès que la connexion est disponible (poussée en batch idempotente sur l'UUID
 client ; les undo/void déjà synchronisés sont propagés via un appel dédié).
+Un service worker enregistre un Background Sync (`basketstats-sync`) et un
+backoff exponentiel relance la file tant que le match est ouvert. Recharger
+l'onglet (`/?game=<id>`) reprend le journal local sans perte ; rejouer un
+batch déjà poussé ne crée pas de doublon.
+
 Le moteur de dérivation du box score est réimplémenté en TypeScript
 (`frontend/src/domain/boxScore.ts`) et testé avec la même fixture de référence
 que le backend (`frontend/src/domain/referenceGame.fixture.ts`), pour garantir

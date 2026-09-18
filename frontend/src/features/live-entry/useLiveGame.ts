@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fetchGame, fetchGameRoster } from "../../api/games";
 import { fetchTeamPlayers } from "../../api/players";
 import type { ActionType, EventActor } from "../../domain/actionTypes";
+import { hydrateEventsFromServer } from "../../offline/hydrate";
 import { db, type CachedGame, type CachedPlayer, type CachedRosterEntry, type LocalGameEvent } from "../../offline/db";
-import { pendingEventCount, syncGame, type SyncStatus } from "../../offline/sync";
+import { withRecordLock } from "../../offline/recordLock";
+import { startSyncLoop, type SyncLoop, type SyncStatus } from "../../offline/sync";
 import { useLiveQuery } from "../../offline/useLiveQuery";
 
 interface RecordEventInput {
@@ -36,6 +38,7 @@ export function useLiveGame(gameId: string) {
   const [roster, setRoster] = useState<CachedRosterEntry[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("offline");
+  const syncLoopRef = useRef<SyncLoop | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +51,12 @@ export function useLiveGame(gameId: string) {
         await db.games.put(apiGame);
         await db.roster.bulkPut(apiRoster);
         await db.players.bulkPut(apiPlayers);
+        try {
+          await hydrateEventsFromServer(gameId);
+        } catch {
+          // Local journal is enough to keep scoring; hydrate is best-effort.
+        }
+        if (cancelled) return;
         setGame(apiGame);
         setRoster(apiRoster);
         setPlayers(apiPlayers);
@@ -80,36 +89,17 @@ export function useLiveGame(gameId: string) {
     [] as LocalGameEvent[],
   );
 
-  const refreshSyncStatus = useCallback(async () => {
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setSyncStatus("offline");
-      return;
-    }
-    const pending = await pendingEventCount(gameId);
-    setSyncStatus(pending > 0 ? "pending" : "synced");
+  useEffect(() => {
+    const loop = startSyncLoop(gameId, setSyncStatus);
+    syncLoopRef.current = loop;
+    return () => {
+      loop.stop();
+      syncLoopRef.current = null;
+    };
   }, [gameId]);
 
-  const attemptSync = useCallback(async () => {
-    try {
-      await syncGame(gameId);
-    } catch {
-      // stays pending, retried on the next tick
-    }
-    await refreshSyncStatus();
-  }, [gameId, refreshSyncStatus]);
-
-  useEffect(() => {
-    void attemptSync();
-    const interval = setInterval(() => void attemptSync(), 4000);
-    window.addEventListener("online", () => void attemptSync());
-    window.addEventListener("offline", () => void refreshSyncStatus());
-    return () => {
-      clearInterval(interval);
-    };
-  }, [attemptSync, refreshSyncStatus]);
-
-  const recordEvent = useCallback(
-    async (input: RecordEventInput) => {
+  const recordEvent = useCallback(async (input: RecordEventInput) => {
+    await withRecordLock(gameId, async () => {
       const seq = await nextSeq(gameId);
       const event: LocalGameEvent = {
         id: crypto.randomUUID(),
@@ -129,23 +119,19 @@ export function useLiveGame(gameId: string) {
         pendingVoidSync: false,
       };
       await db.gameEvents.add(event);
-      void attemptSync();
-    },
-    [gameId, attemptSync],
-  );
+    });
+    syncLoopRef.current?.kick();
+  }, [gameId]);
 
-  const voidEvent = useCallback(
-    async (eventId: string) => {
-      const event = await db.gameEvents.get(eventId);
-      if (!event) return;
-      await db.gameEvents.update(eventId, {
-        voided: true,
-        pendingVoidSync: event.syncedInsert,
-      });
-      void attemptSync();
-    },
-    [attemptSync],
-  );
+  const voidEvent = useCallback(async (eventId: string) => {
+    const event = await db.gameEvents.get(eventId);
+    if (!event) return;
+    await db.gameEvents.update(eventId, {
+      voided: true,
+      pendingVoidSync: event.syncedInsert,
+    });
+    syncLoopRef.current?.kick();
+  }, []);
 
   const undoLast = useCallback(async () => {
     const last = [...events].filter((event) => !event.voided).sort((a, b) => b.seq - a.seq)[0];

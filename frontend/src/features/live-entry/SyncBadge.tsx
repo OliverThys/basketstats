@@ -7,5 +7,9 @@ const LABELS: Record<SyncStatus, string> = {
 };
 
 export function SyncBadge({ status }: { status: SyncStatus }) {
-  return <span className={`sync-badge ${status}`}>{LABELS[status]}</span>;
+  return (
+    <span className={`sync-badge ${status}`} data-testid="sync-badge">
+      {LABELS[status]}
+    </span>
+  );
 }

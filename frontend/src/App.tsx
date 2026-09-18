@@ -4,6 +4,18 @@ import { useState } from "react";
 import { fetchHealth } from "./api/client";
 import { LiveGameScreen } from "./features/live-entry/LiveGameScreen";
 
+function readGameIdFromUrl(): string | null {
+  const value = new URLSearchParams(window.location.search).get("game");
+  return value?.trim() ? value.trim() : null;
+}
+
+function writeGameIdToUrl(gameId: string | null) {
+  const url = new URL(window.location.href);
+  if (gameId) url.searchParams.set("game", gameId);
+  else url.searchParams.delete("game");
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
 function GameLoader({ onOpen }: { onOpen: (gameId: string) => void }) {
   const [gameId, setGameId] = useState("");
 
@@ -42,13 +54,23 @@ function ApiStatus() {
 }
 
 function App() {
-  const [gameId, setGameId] = useState<string | null>(null);
+  const [gameId, setGameId] = useState<string | null>(() => readGameIdFromUrl());
 
-  if (gameId) {
-    return <LiveGameScreen gameId={gameId} onDone={() => setGameId(null)} />;
+  function openGame(id: string) {
+    writeGameIdToUrl(id);
+    setGameId(id);
   }
 
-  return <GameLoader onOpen={setGameId} />;
+  function closeGame() {
+    writeGameIdToUrl(null);
+    setGameId(null);
+  }
+
+  if (gameId) {
+    return <LiveGameScreen gameId={gameId} onDone={closeGame} />;
+  }
+
+  return <GameLoader onOpen={openGame} />;
 }
 
 export default App;

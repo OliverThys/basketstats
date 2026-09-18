@@ -91,6 +91,10 @@ def test_event_batch_ingestion_is_idempotent(client: TestClient) -> None:
     events = client.get(f"/games/{game['id']}/events").json()
     assert len(events) == 2
 
+    # A third replay, and a void replay, must stay idempotent.
+    third_response = client.post(f"/games/{game['id']}/events/batch", json=batch)
+    assert third_response.json() == {"inserted": 0, "skipped_existing": 2}
+
     box_score = client.get(f"/games/{game['id']}/box-score").json()
     assert box_score["home_score"] == 2
     assert box_score["players"][0]["pts"] == 2
@@ -134,3 +138,12 @@ def test_voiding_an_event_recomputes_the_box_score(client: TestClient) -> None:
     box_score = client.get(f"/games/{game['id']}/box-score").json()
     assert box_score["home_score"] == 0
     assert box_score["players"] == []
+
+    # Replaying the void (retry after a lost 204) must stay 204.
+    replay_void = client.delete(f"/games/{game['id']}/events/33333333-3333-3333-3333-333333333333")
+    assert replay_void.status_code == 204
+    assert client.get(f"/games/{game['id']}/box-score").json()["home_score"] == 0
+
+    voided = client.get(f"/games/{game['id']}/events", params={"include_voided": True}).json()
+    assert len(voided) == 1
+    assert voided[0]["voided"] is True

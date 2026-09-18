@@ -25,3 +25,10 @@ dev-dist/
 
 # Logs
 *.log
+
+# Playwright / e2e
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+backend/e2e.db
+backend/e2e.db-journal

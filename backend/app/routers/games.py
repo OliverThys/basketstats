@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -100,7 +101,11 @@ def delete_roster_entry(game_id: str, roster_id: str, db: Session = Depends(get_
 def ingest_events_batch(
     game_id: str, payload: GameEventBatchIn, db: Session = Depends(get_db)
 ) -> GameEventBatchResult:
-    """Idempotent on the client-generated event UUID: replaying a batch never duplicates rows."""
+    """Idempotent on the client-generated event UUID: replaying a batch never duplicates rows.
+
+    Concurrent retries of the same UUID are absorbed via savepoints so a race
+    between two in-flight syncs cannot insert duplicates.
+    """
     _get_game_or_404(game_id, db)
 
     incoming_ids = [event.id for event in payload.events]
@@ -111,25 +116,31 @@ def ingest_events_batch(
     )
 
     inserted = 0
+    skipped_existing = len(existing_ids)
     for event_in in payload.events:
         if event_in.id in existing_ids:
             continue
-        db.add(GameEvent(game_id=game_id, **event_in.model_dump()))
-        inserted += 1
+        try:
+            with db.begin_nested():
+                db.add(GameEvent(game_id=game_id, **event_in.model_dump()))
+                db.flush()
+            inserted += 1
+            existing_ids.add(event_in.id)
+        except IntegrityError:
+            skipped_existing += 1
 
     db.commit()
-    return GameEventBatchResult(inserted=inserted, skipped_existing=len(existing_ids))
+    return GameEventBatchResult(inserted=inserted, skipped_existing=skipped_existing)
 
 
 @router.get("/{game_id}/events", response_model=list[GameEventRead])
-def list_events(game_id: str, db: Session = Depends(get_db)) -> list[GameEvent]:
-    return list(
-        db.scalars(
-            select(GameEvent)
-            .where(GameEvent.game_id == game_id, GameEvent.voided.is_(False))
-            .order_by(GameEvent.period, GameEvent.seq)
-        )
-    )
+def list_events(
+    game_id: str, include_voided: bool = False, db: Session = Depends(get_db)
+) -> list[GameEvent]:
+    stmt = select(GameEvent).where(GameEvent.game_id == game_id)
+    if not include_voided:
+        stmt = stmt.where(GameEvent.voided.is_(False))
+    return list(db.scalars(stmt.order_by(GameEvent.period, GameEvent.seq)))
 
 
 @router.delete("/{game_id}/events/{event_id}", status_code=204)
