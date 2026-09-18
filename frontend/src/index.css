@@ -276,20 +276,56 @@ body {
   font-size: 0.68rem;
 }
 
-.team-fouls {
-  min-width: 1.6rem;
-  padding: 0.15rem 0.4rem;
+.foul-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.3rem 0.4rem;
   border-radius: 999px;
   background: #334155;
-  color: #cbd5e1;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-align: center;
 }
 
-.team-fouls.bonus {
+.foul-dots.bonus {
   background: #7f1d1d;
-  color: #fca5a5;
+}
+
+.foul-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid #94a3b8;
+  box-sizing: border-box;
+}
+
+.foul-dots.bonus .foul-dot {
+  border-color: #fca5a5;
+}
+
+.foul-dot.filled {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+}
+
+.foul-dots.bonus .foul-dot.filled {
+  background: #fca5a5;
+  border-color: #fca5a5;
+}
+
+.stats-panel .foul-dots {
+  padding: 0.15rem 0.3rem;
+  background: transparent;
+}
+
+.stats-panel .foul-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-color: #64748b;
+}
+
+.stats-panel .foul-dot.filled {
+  background: #f97316;
+  border-color: #f97316;
 }
 
 /* Action buttons */

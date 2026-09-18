@@ -1,6 +1,7 @@
 import { computeBoxScore } from "../../domain/boxScore";
 import type { CachedPlayer } from "../../offline/db";
 import type { LocalGameEvent } from "../../offline/db";
+import { FoulDots } from "./FoulDots";
 
 interface StatsPanelProps {
   events: LocalGameEvent[];
@@ -36,7 +37,7 @@ export function StatsPanel({ events, players }: StatsPanelProps) {
               <td>{row!.pts}</td>
               <td>{row!.rebTot}</td>
               <td>{row!.ast}</td>
-              <td>{"●".repeat(row!.pf)}</td>
+              <td><FoulDots count={row!.pf} /></td>
             </tr>
           ))}
         </tbody>
