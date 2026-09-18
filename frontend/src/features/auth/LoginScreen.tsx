@@ -38,10 +38,6 @@ export function LoginScreen() {
           <div className="auth-hero-scrim" aria-hidden="true" />
 
           <div className="auth-hero-copy">
-            <p className="auth-hero-tagline">
-              Chaque action compte, sur le terrain et hors ligne.
-            </p>
-
             <div className="auth-tabs">
               <button
                 type="button"

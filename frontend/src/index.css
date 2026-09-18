@@ -1204,7 +1204,7 @@ body {
 .auth-hero-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, rgba(6, 10, 20, 0.94) 0%, rgba(6, 10, 20, 0.82) 34%, rgba(6, 10, 20, 0.4) 58%, rgba(6, 10, 20, 0.15) 80%, rgba(6, 10, 20, 0.15) 100%);
+  background: radial-gradient(ellipse 620px 560px at 50% 50%, rgba(6, 10, 20, 0.92) 0%, rgba(6, 10, 20, 0.68) 45%, rgba(6, 10, 20, 0.25) 75%, rgba(6, 10, 20, 0.1) 100%);
   pointer-events: none;
 }
 
@@ -1213,21 +1213,14 @@ body {
   z-index: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   width: min(420px, 90%);
   height: 100%;
+  margin: 0 auto;
   justify-content: center;
   padding: 1.5rem 2rem;
   box-sizing: border-box;
-}
-
-.auth-hero-tagline {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  line-height: 1.25;
-  color: #ffffff;
-  letter-spacing: -0.01em;
 }
 
 .auth-tabs {
