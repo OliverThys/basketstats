@@ -34,58 +34,68 @@ export function LoginScreen() {
         </header>
 
         <div className="auth-screen-body">
-          <div className="auth-tabs">
-            <button
-              type="button"
-              className={mode === "login" ? "active" : ""}
-              onClick={() => setMode("login")}
-            >
-              Se connecter
-            </button>
-            <button
-              type="button"
-              className={mode === "register" ? "active" : ""}
-              onClick={() => setMode("register")}
-            >
-              Créer un club
-            </button>
-          </div>
+          <img src="/auth-hero.jpg" alt="" aria-hidden="true" className="auth-hero-art" />
+          <div className="auth-hero-scrim" aria-hidden="true" />
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            {mode === "register" && (
+          <div className="auth-hero-copy">
+            <div className="auth-hero-badge">FIBA · OFFLINE-FIRST · MULTI-CLUBS</div>
+            <p className="auth-hero-tagline">
+              Chaque action compte, sur le terrain et hors ligne.
+            </p>
+
+            <div className="auth-tabs">
+              <button
+                type="button"
+                className={mode === "login" ? "active" : ""}
+                onClick={() => setMode("login")}
+              >
+                Se connecter
+              </button>
+              <button
+                type="button"
+                className={mode === "register" ? "active" : ""}
+                onClick={() => setMode("register")}
+              >
+                Créer un club
+              </button>
+            </div>
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              {mode === "register" && (
+                <label>
+                  Nom du club
+                  <input
+                    value={orgName}
+                    onChange={(event) => setOrgName(event.target.value)}
+                    required
+                  />
+                </label>
+              )}
               <label>
-                Nom du club
+                E-mail
                 <input
-                  value={orgName}
-                  onChange={(event) => setOrgName(event.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                 />
               </label>
-            )}
-            <label>
-              E-mail
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </label>
-            {mode === "register" && (
-              <label>
-                Votre nom
-                <input
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  required
-                />
-              </label>
-            )}
-            {error && <p className="auth-error">{error}</p>}
-            <button type="submit" className="header-btn auth-submit" disabled={submitting}>
-              {mode === "login" ? "Se connecter" : "Créer le club"}
-            </button>
-          </form>
+              {mode === "register" && (
+                <label>
+                  Votre nom
+                  <input
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    required
+                  />
+                </label>
+              )}
+              {error && <p className="auth-error">{error}</p>}
+              <button type="submit" className="header-btn auth-submit" disabled={submitting}>
+                {mode === "login" ? "Se connecter" : "Créer le club"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
