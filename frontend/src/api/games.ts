@@ -12,7 +12,6 @@ export interface GameApiRead {
   status: string;
   home_score: number;
   opponent_score: number;
-  share_token: string;
 }
 
 interface GameRosterApiRead {

@@ -7,9 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth import CurrentUser, get_current_user, require_write
 from app.database import get_db
 from app.exports import box_score_csv, box_score_pdf, shot_zones_csv
-from app.live import broadcaster
 from app.models import Game, GameEvent, GameRoster, Player
-from app.routers.live import build_live_snapshot
 from app.schemas.box_score import GameBoxScoreOut
 from app.schemas.game import GameCreate, GameRead, GameUpdate
 from app.schemas.game_event import GameEventBatchIn, GameEventBatchResult, GameEventRead
@@ -159,7 +157,7 @@ async def ingest_events_batch(
     Concurrent retries of the same UUID are absorbed via savepoints so a race
     between two in-flight syncs cannot insert duplicates.
     """
-    game = get_org_game(db, game_id, current_user.org_id)
+    get_org_game(db, game_id, current_user.org_id)
 
     incoming_ids = [event.id for event in payload.events]
     existing_ids = (
@@ -183,8 +181,6 @@ async def ingest_events_batch(
             skipped_existing += 1
 
     db.commit()
-    if inserted:
-        await broadcaster.broadcast(game.share_token, build_live_snapshot(db, game))
     return GameEventBatchResult(inserted=inserted, skipped_existing=skipped_existing)
 
 
@@ -210,13 +206,12 @@ async def void_event(
     current_user: CurrentUser = Depends(require_write),
 ) -> None:
     """Soft-delete: marks the event voided rather than removing it from the journal."""
-    game = get_org_game(db, game_id, current_user.org_id)
+    get_org_game(db, game_id, current_user.org_id)
     event = db.get(GameEvent, event_id)
     if event is None or event.game_id != game_id:
         raise HTTPException(status_code=404, detail="Event not found")
     event.voided = True
     db.commit()
-    await broadcaster.broadcast(game.share_token, build_live_snapshot(db, game))
 
 
 @router.get("/{game_id}/box-score", response_model=GameBoxScoreOut)

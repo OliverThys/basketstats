@@ -44,7 +44,7 @@ function FieldGoalGroup({
   return (
     <div className="action-group fg-group">
       <h4>{title}</h4>
-      <div className="action-row">
+      <div className="action-grid-2">
         <ActionButton action={madeAction} label="Réussi" variant="made" selected={selectedAction === madeAction} onSelect={onSelect} />
         <ActionButton action={missAction} label="Manqué" variant="missed" selected={selectedAction === missAction} onSelect={onSelect} />
       </div>
@@ -82,7 +82,7 @@ export function ActionButtons({ selectedAction, onSelect }: ActionButtonsProps) 
       <div className="stat-groups">
         <div className="action-group">
           <h4>Rebonds</h4>
-          <div className="action-row">
+          <div className="action-grid-2">
             <ActionButton action={ActionType.REB_OFF} label="Offensif" variant="neutral" selected={selectedAction === ActionType.REB_OFF} onSelect={onSelect} />
             <ActionButton action={ActionType.REB_DEF} label="Défensif" variant="neutral" selected={selectedAction === ActionType.REB_DEF} onSelect={onSelect} />
           </div>
@@ -90,7 +90,7 @@ export function ActionButtons({ selectedAction, onSelect }: ActionButtonsProps) 
 
         <div className="action-group">
           <h4>Autres stats</h4>
-          <div className="action-row">
+          <div className="action-grid-2">
             <ActionButton action={ActionType.BLOCK} label="Contre" variant="neutral" selected={selectedAction === ActionType.BLOCK} onSelect={onSelect} />
             <ActionButton action={ActionType.ASSIST} label="Passe" variant="neutral" selected={selectedAction === ActionType.ASSIST} onSelect={onSelect} />
             <ActionButton action={ActionType.STEAL} label="Interception" variant="neutral" selected={selectedAction === ActionType.STEAL} onSelect={onSelect} />

@@ -34,4 +34,3 @@ class GameRead(BaseModel):
     status: GameStatus
     home_score: int
     opponent_score: int
-    share_token: str

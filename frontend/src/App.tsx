@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { LoginScreen } from "./features/auth/LoginScreen";
 import { LiveGameScreen } from "./features/live-entry/LiveGameScreen";
 import { ManagementScreen } from "./features/management/ManagementScreen";
-import { LiveSpectatorScreen } from "./features/spectator/LiveSpectatorScreen";
 import { SeasonStatsScreen } from "./features/stats/SeasonStatsScreen";
 
 function readParam(name: string): string | null {
@@ -72,11 +71,6 @@ function AuthenticatedApp() {
 }
 
 function App() {
-  const shareToken = readParam("live");
-  if (shareToken) {
-    return <LiveSpectatorScreen shareToken={shareToken} />;
-  }
-
   return (
     <AuthProvider>
       <AuthenticatedApp />

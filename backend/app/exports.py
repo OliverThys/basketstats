@@ -392,5 +392,6 @@ def season_stats_pdf(report: SeasonReport, names: dict[str, str], title: str) ->
                 f"{stats.totals.ts_pct * 100:.1f}",
             ]
         )
-    subtitle = f"{report.games} match{'s' if report.games != 1 else ''} joué{'s' if report.games != 1 else ''}"
+    plural = "s" if report.games != 1 else ""
+    subtitle = f"{report.games} match{plural} joué{plural}"
     return _pdf_table(title, headers, rows, subtitle=subtitle)

@@ -30,10 +30,6 @@ class Game(Base):
     )
     home_score: Mapped[int] = mapped_column(Integer, default=0)
     opponent_score: Mapped[int] = mapped_column(Integer, default=0)
-    # Opaque token for the read-only public spectator link; never derived from org/game ids.
-    share_token: Mapped[str] = mapped_column(
-        String(32), unique=True, default=lambda: uuid.uuid4().hex
-    )
 
     organization: Mapped["Organization"] = relationship(back_populates="games")
     home_team: Mapped["Team"] = relationship(back_populates="games")

@@ -35,7 +35,6 @@ class BackupGame(BaseModel):
     label: str | None
     ruleset: str
     status: GameStatus
-    share_token: str
 
 
 class BackupGameRoster(BaseModel):

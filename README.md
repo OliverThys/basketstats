@@ -101,25 +101,7 @@ club — vérifié par des tests d'isolation côté API).
 Le bouton "Gérer les équipes, joueurs et matchs" de l'accueil ouvre un écran
 de gestion (`ManagementScreen`) : création/édition/suppression d'équipes,
 recherche et gestion des joueurs par équipe, création de matchs avec
-recherche par adversaire. Chaque match y expose aussi son lien spectateur
-(voir plus bas).
-
-## Partage live spectateur
-
-Chaque match a un `share_token` public (distinct de son id et des identifiants
-de l'organisation) qui donne accès à une page de suivi en direct, sans
-connexion requise :
-
-- `GET /live/{share_token}` : score, box score et derniers events en JSON.
-- `WS /live/{share_token}/ws` : la même chose en direct, poussé par le backend
-  à chaque batch d'events ingéré ou event annulé.
-- Frontend : `http://localhost:5190/?live=<share_token>` ouvre
-  `LiveSpectatorScreen`, qui se connecte au WebSocket et affiche score,
-  fil du match et box score en direct.
-
-Le fan-out WebSocket est géré en mémoire dans le process API (suffisant pour
-le worker unique de `docker-compose`) ; passer à Redis pub/sub si l'API est un
-jour répartie sur plusieurs workers.
+recherche par adversaire.
 
 ## Backup / restore
 
