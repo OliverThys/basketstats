@@ -1,11 +1,9 @@
 import { useRef } from "react";
 
-export interface ShotMarker {
-  id: string;
-  x: number;
-  y: number;
-  made: boolean;
-}
+import { clamp01, toNormalizedPoint } from "../../domain/court";
+import { FibaCourtSvg, type ShotMarker } from "../shot-chart/FibaCourtSvg";
+
+export type { ShotMarker };
 
 interface ShotPadProps {
   markers: ShotMarker[];
@@ -13,19 +11,37 @@ interface ShotPadProps {
   interactive?: boolean;
 }
 
-/** Minimal tap-to-record court surface. Coordinates are normalized 0..1 so
- * they stay independent of screen size. A proper FIBA-dimension court render
- * (3pt arc, key, zones) is built out in Phase 3 — this is enough to capture
- * and replay shot locations now. */
+function pickNormalized(event: React.MouseEvent<HTMLDivElement>, pad: HTMLDivElement): { x: number; y: number } {
+  const svg = pad.querySelector("svg");
+  if (svg instanceof SVGSVGElement) {
+    const ctm = svg.getScreenCTM?.();
+    if (ctm) {
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const local = point.matrixTransform(ctm.inverse());
+      return toNormalizedPoint(local.x, local.y);
+    }
+  }
+  const rect = pad.getBoundingClientRect();
+  return {
+    x: clamp01((event.clientX - rect.left) / rect.width),
+    y: clamp01((event.clientY - rect.top) / rect.height),
+  };
+}
+
+/** Tap-to-record FIBA court surface. Coordinates are normalized 0..1 so they
+ * stay independent of screen size; the court itself is rendered by
+ * FibaCourtSvg using real FIBA dimensions. Clicks are mapped through the SVG
+ * CTM when available (correct even with letterboxing), with a bounding-box
+ * fallback for jsdom. */
 export function ShotPad({ markers, onPick, interactive = true }: ShotPadProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   function handleClick(event: React.MouseEvent<HTMLDivElement>) {
     if (!interactive || !onPick || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    onPick(Math.min(Math.max(x, 0), 1), Math.min(Math.max(y, 0), 1));
+    const { x, y } = pickNormalized(event, ref.current);
+    onPick(x, y);
   }
 
   return (
@@ -36,14 +52,7 @@ export function ShotPad({ markers, onPick, interactive = true }: ShotPadProps) {
       role={interactive ? "button" : undefined}
       data-testid="shot-pad"
     >
-      <div className="shot-pad-hoop" />
-      {markers.map((marker) => (
-        <span
-          key={marker.id}
-          className={marker.made ? "shot-marker made" : "shot-marker missed"}
-          style={{ left: `${marker.x * 100}%`, top: `${marker.y * 100}%` }}
-        />
-      ))}
+      <FibaCourtSvg markers={markers} />
     </div>
   );
 }

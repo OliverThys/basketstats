@@ -46,7 +46,7 @@ describe("LiveGameScreen", () => {
   it("records a two-step non-shot event and reflects it in play-by-play and stats", async () => {
     render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
 
-    const playerButton = await screen.findByText(/Henry Domercant/);
+    const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
     fireEvent.click(screen.getByText("Steal"));
 
@@ -61,7 +61,7 @@ describe("LiveGameScreen", () => {
   it("parks a shot selection and records it with tapped coordinates", async () => {
     render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
 
-    const playerButton = await screen.findByText(/Henry Domercant/);
+    const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
 
     const madeButtons = screen.getAllByText("Made");
@@ -92,10 +92,37 @@ describe("LiveGameScreen", () => {
     });
   });
 
+  it("shows a recorded shot on the shot chart at the tapped location", async () => {
+    render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
+
+    const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
+    fireEvent.click(playerButton);
+    fireEvent.click(screen.getAllByText("Made")[0]);
+
+    const pad = await screen.findByTestId("shot-pad");
+    vi.spyOn(pad, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 100,
+      height: 100,
+      right: 100,
+      bottom: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    } as DOMRect);
+    fireEvent.click(pad, { clientX: 80, clientY: 50 });
+
+    await waitFor(() => expect(screen.getByText(/2pt Made/)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Shot Chart"));
+    expect(document.querySelectorAll(".shot-marker-made")).toHaveLength(1);
+  });
+
   it("undoes the last action by voiding it locally", async () => {
     render(<LiveGameScreen gameId="game-1" onDone={() => {}} />);
 
-    const playerButton = await screen.findByText(/Henry Domercant/);
+    const playerButton = await screen.findByRole("button", { name: /Henry Domercant/ });
     fireEvent.click(playerButton);
     fireEvent.click(screen.getByText("Assist"));
     await waitFor(() => expect(screen.getByText(/Henry Domercant - Assist/)).toBeInTheDocument());

@@ -317,59 +317,50 @@ body {
   font-weight: 700;
 }
 
-/* Shot pad */
+/* FIBA court / shot pad */
 
 .shot-pad {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #b45309;
-  border: 2px solid #78350f;
-  border-radius: 4px;
+  aspect-ratio: 14 / 15;
   cursor: crosshair;
 }
 
-.shot-pad-hoop {
-  position: absolute;
-  right: 5%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 10%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 3px solid #fb923c;
-}
-
-.shot-marker {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-}
-
-.shot-marker.made {
-  background: transparent;
-  border: 2px solid #22c55e;
-}
-
-.shot-marker.missed::before,
-.shot-marker.missed::after {
-  content: "";
-  position: absolute;
+.fiba-court {
   width: 100%;
-  height: 2px;
-  background: #ef4444;
-  top: 50%;
-  left: 0;
+  height: 100%;
+  display: block;
 }
 
-.shot-marker.missed::before {
-  transform: rotate(45deg);
+.court-surface {
+  fill: #b45309;
 }
 
-.shot-marker.missed::after {
-  transform: rotate(-45deg);
+.court-line {
+  fill: none;
+  stroke: #fed7aa;
+  stroke-width: 0.08;
+}
+
+.court-line-dashed {
+  stroke-dasharray: 0.3 0.22;
+}
+
+.court-rim {
+  fill: #fb923c;
+  stroke: #78350f;
+  stroke-width: 0.04;
+}
+
+.shot-marker-made {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 0.12;
+}
+
+.shot-marker-missed line {
+  stroke: #ef4444;
+  stroke-width: 0.12;
 }
 
 .shot-capture {
@@ -379,6 +370,79 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.shot-capture .shot-pad {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Shot chart view */
+
+.shot-chart-view {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) minmax(220px, 260px);
+  gap: 1rem;
+  align-items: start;
+}
+
+.shot-chart-court {
+  width: 100%;
+  aspect-ratio: 14 / 15;
+}
+
+.shot-chart-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.shot-chart-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.shot-chart-player-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.shot-chart-select-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.shot-chart-select-actions button {
+  flex: 1;
+  padding: 0.3rem;
+  background: #334155;
+  border: none;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.shot-chart-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.shot-chart-export {
+  margin-top: auto;
+  padding: 0.5rem;
+  background: #16a34a;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* Sync badge */
@@ -424,6 +488,17 @@ body {
   max-width: 90vw;
   max-height: 85vh;
   overflow: auto;
+}
+
+.modal-panel:has(.shot-chart-view) {
+  width: min(760px, 96vw);
+  max-width: 96vw;
+}
+
+@media (max-width: 720px) {
+  .shot-chart-view {
+    grid-template-columns: 1fr;
+  }
 }
 
 .modal-panel header {

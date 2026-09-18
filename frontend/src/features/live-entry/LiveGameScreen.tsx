@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 
 import { ActionType } from "../../domain/actionTypes";
 import { ActionButtons } from "./ActionButtons";
@@ -9,7 +9,8 @@ import { OpponentButtons } from "./OpponentButtons";
 import { PlayByPlay } from "./PlayByPlay";
 import { PlayerGrid } from "./PlayerGrid";
 import { Scoreboard } from "./Scoreboard";
-import { ShotChartModal } from "./ShotChartModal";
+import { ShotChartView } from "../shot-chart/ShotChartView";
+import { extractShotEntries } from "../shot-chart/shotFilters";
 import { ShotPad } from "./ShotPad";
 import { StatsPanel } from "./StatsPanel";
 import { SyncBadge } from "./SyncBadge";
@@ -26,6 +27,10 @@ export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
   const [entry, dispatch] = useReducer(entryReducer, initialEntryState);
   const [period, setPeriod] = useState(1);
   const [modal, setModal] = useState<null | "box-score" | "shot-chart" | "sketch-board">(null);
+  const shotMarkers = useMemo(
+    () => extractShotEntries(events).map((shot) => ({ id: shot.id, x: shot.x, y: shot.y, made: shot.made })),
+    [events],
+  );
 
   useEffect(() => {
     if (!isReadyForImmediateEvent(entry)) return;
@@ -114,7 +119,7 @@ export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
           {entry.pendingShot ? (
             <div className="shot-capture">
               <p>Tap the court to record the shot location</p>
-              <ShotPad markers={[]} onPick={(x, y) => void completeShot(x, y)} />
+              <ShotPad markers={shotMarkers} onPick={(x, y) => void completeShot(x, y)} />
               <button onClick={() => dispatch({ type: "RESET" })}>Cancel</button>
             </div>
           ) : (
@@ -135,7 +140,7 @@ export function LiveGameScreen({ gameId, onDone }: LiveGameScreenProps) {
       </div>
 
       {modal === "box-score" && <BoxScoreModal events={events} players={players} onClose={() => setModal(null)} />}
-      {modal === "shot-chart" && <ShotChartModal events={events} onClose={() => setModal(null)} />}
+      {modal === "shot-chart" && <ShotChartView events={events} players={players} onClose={() => setModal(null)} />}
       {modal === "sketch-board" && (
         <Modal title="Sketch Board" onClose={() => setModal(null)}>
           <p>Coming soon.</p>

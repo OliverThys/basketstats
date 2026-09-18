@@ -93,6 +93,11 @@ n'importe quel ordre), le shot chart inline pour les tirs, le play-by-play
 éditable avec undo, le panneau de stats live et l'indicateur de synchronisation
 (Synced / Sync pending / Offline).
 
+La vue **Shot Chart** (bouton dans l'en-tête live) affiche les tirs FG2/FG3
+sur un demi-terrain FIBA (ligne à 3 pts 6,75 m / 6,60 m dans les coins,
+raquette rectangulaire). Filtres par joueur (Select All / Deselect All) et par
+quart (Q1–Q4 / OT / All), marqueurs made (cercle) / missed (croix), export PNG.
+
 Tout event est d'abord écrit dans IndexedDB (Dexie) puis synchronisé vers l'API
 dès que la connexion est disponible (poussée en batch idempotente sur l'UUID
 client ; les undo/void déjà synchronisés sont propagés via un appel dédié).
