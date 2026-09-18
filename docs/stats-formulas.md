@@ -28,5 +28,9 @@ TS%  = PTS / (2*(FGA + 0.44*FTA))
 
 `+/-` et minutes dérivés des paires `SUB_IN`/`SUB_OUT`.
 
-Implémentation et tests : à partir de la Phase 1, dans
-`backend/app/domain/` (moteur de dérivation) avec fixtures de match complet.
+Implémenté dans `backend/app/domain/box_score.py` : moteur pur
+(`compute_box_score`), sans dépendance à SQLAlchemy, testé dans
+`backend/tests/test_box_score_engine.py` avec un match complet à 10 joueurs
+reproduisant exactement le box score de l'app de référence (voir
+`backend/tests/fixtures/reference_game.py`), colonne par colonne, y compris
+EFF et les pourcentages d'équipe (FG% 46.0, 2P% 48.8, 3P% 40.0, FT% 72.7).
