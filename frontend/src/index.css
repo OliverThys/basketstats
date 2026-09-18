@@ -202,9 +202,9 @@ body {
 }
 
 .led-panel {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
   width: 100%;
   background: #0a0a0a;
@@ -217,7 +217,8 @@ body {
 }
 
 .led-side {
-  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .led-team {
@@ -237,7 +238,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
+  max-width: 100%;
 }
 
 .led-sep {
@@ -246,6 +247,7 @@ body {
   background: #1a1a1a;
   border-radius: 1px;
   flex-shrink: 0;
+  justify-self: center;
 }
 
 .led-side .foul-dots {
