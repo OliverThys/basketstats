@@ -1,9 +1,8 @@
 from fastapi.testclient import TestClient
 
 
-def _setup_org_team_player(client: TestClient) -> tuple[str, str, str]:
-    org = client.post("/organizations", json={"name": "Test Club"}).json()
-    team = client.post("/teams", json={"org_id": org["id"], "name": "Home Team"}).json()
+def _setup_team_player(client: TestClient) -> tuple[str, str]:
+    team = client.post("/teams", json={"name": "Home Team"}).json()
     player = client.post(
         "/players",
         json={
@@ -16,16 +15,15 @@ def _setup_org_team_player(client: TestClient) -> tuple[str, str, str]:
             "weight_kg": 65,
         },
     ).json()
-    return org["id"], team["id"], player["id"]
+    return team["id"], player["id"]
 
 
 def test_team_player_game_crud_flow(client: TestClient) -> None:
-    org_id, team_id, player_id = _setup_org_team_player(client)
+    team_id, player_id = _setup_team_player(client)
 
     game = client.post(
         "/games",
         json={
-            "org_id": org_id,
             "home_team_id": team_id,
             "opponent_name": "Rival Club",
             "game_date": "2026-01-15T18:00:00Z",
@@ -43,16 +41,15 @@ def test_team_player_game_crud_flow(client: TestClient) -> None:
     assert len(roster_list) == 1
     assert roster_list[0]["player_id"] == player_id
 
-    games_for_org = client.get("/games", params={"org_id": org_id}).json()
+    games_for_org = client.get("/games").json()
     assert len(games_for_org) == 1
 
 
 def test_event_batch_ingestion_is_idempotent(client: TestClient) -> None:
-    org_id, team_id, player_id = _setup_org_team_player(client)
+    team_id, player_id = _setup_team_player(client)
     game = client.post(
         "/games",
         json={
-            "org_id": org_id,
             "home_team_id": team_id,
             "opponent_name": "Rival Club",
             "game_date": "2026-01-15T18:00:00Z",
@@ -102,11 +99,10 @@ def test_event_batch_ingestion_is_idempotent(client: TestClient) -> None:
 
 
 def test_voiding_an_event_recomputes_the_box_score(client: TestClient) -> None:
-    org_id, team_id, player_id = _setup_org_team_player(client)
+    team_id, player_id = _setup_team_player(client)
     game = client.post(
         "/games",
         json={
-            "org_id": org_id,
             "home_team_id": team_id,
             "opponent_name": "Rival Club",
             "game_date": "2026-01-15T18:00:00Z",

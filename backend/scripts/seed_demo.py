@@ -37,12 +37,19 @@ def main() -> int:
     args = parser.parse_args()
 
     with httpx.Client(base_url=args.base_url, timeout=10.0) as client:
-        org = client.post("/organizations", json={"name": "Demo Club"}).raise_for_status().json()
-        team = (
-            client.post("/teams", json={"org_id": org["id"], "name": "BC Spartak"})
-            .raise_for_status()
-            .json()
+        token_response = client.post(
+            "/auth/register",
+            json={
+                "org_name": "Demo Club",
+                "email": f"demo-{datetime.now(UTC).timestamp():.0f}@example.com",
+                "display_name": "Demo Coach",
+            },
         )
+        token_response.raise_for_status()
+        token = token_response.json()["access_token"]
+        client.headers["Authorization"] = f"Bearer {token}"
+
+        team = client.post("/teams", json={"name": "BC Spartak"}).raise_for_status().json()
 
         player_ids = []
         for first_name, last_name, jersey_number, position in DEMO_PLAYERS:
@@ -66,7 +73,6 @@ def main() -> int:
             client.post(
                 "/games",
                 json={
-                    "org_id": org["id"],
                     "home_team_id": team["id"],
                     "opponent_name": "BC Enisey",
                     "game_date": datetime.now(UTC).isoformat(),
@@ -85,7 +91,7 @@ def main() -> int:
 
     print(f"Game ID: {game['id']}")
     print(f"Team ID: {team['id']}")
-    print(f"Org ID: {org['id']}")
+    print(f"Auth token: {token}")
     return 0
 
 

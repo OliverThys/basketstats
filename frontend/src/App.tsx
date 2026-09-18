@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { fetchHealth } from "./api/client";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+import { LoginScreen } from "./features/auth/LoginScreen";
 import { LiveGameScreen } from "./features/live-entry/LiveGameScreen";
+import { ManagementScreen } from "./features/management/ManagementScreen";
+import { LiveSpectatorScreen } from "./features/spectator/LiveSpectatorScreen";
 import { SeasonStatsScreen } from "./features/stats/SeasonStatsScreen";
 
 function readParam(name: string): string | null {
@@ -10,21 +14,25 @@ function readParam(name: string): string | null {
   return value?.trim() ? value.trim() : null;
 }
 
-function writeParams(gameId: string | null, teamId: string | null) {
+function writeParams(gameId: string | null, teamId: string | null, manage?: boolean) {
   const url = new URL(window.location.href);
   if (gameId) url.searchParams.set("game", gameId);
   else url.searchParams.delete("game");
   if (teamId) url.searchParams.set("team", teamId);
   else url.searchParams.delete("team");
+  if (manage) url.searchParams.set("manage", "1");
+  else url.searchParams.delete("manage");
   window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 function GameLoader({
   onOpenGame,
   onOpenSeason,
+  onOpenManagement,
 }: {
   onOpenGame: (gameId: string) => void;
   onOpenSeason: (teamId: string) => void;
+  onOpenManagement: () => void;
 }) {
   const [gameId, setGameId] = useState("");
   const [teamId, setTeamId] = useState("");
@@ -66,6 +74,9 @@ function GameLoader({
         />
         <button type="submit">Stats de la saison</button>
       </form>
+      <p className="game-loader">
+        <button onClick={onOpenManagement}>Gérer les équipes, joueurs et matchs</button>
+      </p>
     </main>
   );
 }
@@ -79,26 +90,52 @@ function ApiStatus() {
   );
 }
 
-function App() {
+function AuthenticatedApp() {
+  const { user, loading } = useAuth();
   const [gameId, setGameId] = useState<string | null>(() => readParam("game"));
-  const [teamId, setTeamId] = useState<string | null>(() => (readParam("game") ? null : readParam("team")));
+  const [teamId, setTeamId] = useState<string | null>(() =>
+    readParam("game") ? null : readParam("team"),
+  );
+  const [managing, setManaging] = useState<boolean>(() => readParam("manage") === "1");
 
   function openGame(id: string) {
     writeParams(id, null);
     setTeamId(null);
+    setManaging(false);
     setGameId(id);
   }
 
   function openSeason(id: string) {
     writeParams(null, id);
     setGameId(null);
+    setManaging(false);
     setTeamId(id);
+  }
+
+  function openManagement() {
+    writeParams(null, null, true);
+    setGameId(null);
+    setTeamId(null);
+    setManaging(true);
   }
 
   function closeToHome() {
     writeParams(null, null);
     setGameId(null);
     setTeamId(null);
+    setManaging(false);
+  }
+
+  if (loading) {
+    return (
+      <main className="app-shell">
+        <p>Chargement...</p>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
   }
 
   if (gameId) {
@@ -109,7 +146,28 @@ function App() {
     return <SeasonStatsScreen teamId={teamId} onBack={closeToHome} />;
   }
 
-  return <GameLoader onOpenGame={openGame} onOpenSeason={openSeason} />;
+  if (managing) {
+    return (
+      <ManagementScreen onBack={closeToHome} onOpenGame={openGame} onOpenSeason={openSeason} />
+    );
+  }
+
+  return (
+    <GameLoader onOpenGame={openGame} onOpenSeason={openSeason} onOpenManagement={openManagement} />
+  );
+}
+
+function App() {
+  const shareToken = readParam("live");
+  if (shareToken) {
+    return <LiveSpectatorScreen shareToken={shareToken} />;
+  }
+
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
 }
 
 export default App;

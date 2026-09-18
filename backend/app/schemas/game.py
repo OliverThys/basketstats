@@ -6,7 +6,6 @@ from app.models.enums import GameStatus
 
 
 class GameCreate(BaseModel):
-    org_id: str
     home_team_id: str
     opponent_name: str
     game_date: datetime
@@ -35,3 +34,4 @@ class GameRead(BaseModel):
     status: GameStatus
     home_score: int
     opponent_score: int
+    share_token: str

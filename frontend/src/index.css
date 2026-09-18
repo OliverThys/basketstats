@@ -684,3 +684,181 @@ body {
   align-items: center;
   margin-bottom: 0.5rem;
 }
+
+/* Auth screen */
+
+.auth-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 0.5rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  background: #334155;
+  border-color: #60a5fa;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.auth-form input,
+.auth-form select {
+  padding: 0.5rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.auth-form button[type="submit"] {
+  margin-top: 0.25rem;
+  padding: 0.6rem;
+  background: #2563eb;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.auth-error {
+  color: #f87171;
+  font-size: 0.9rem;
+}
+
+/* Management screen */
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.management-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1rem;
+}
+
+.management-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.management-toolbar input {
+  flex: 1;
+  padding: 0.5rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.management-toolbar button {
+  padding: 0.5rem 0.75rem;
+  background: #334155;
+  border: none;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.management-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.management-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #1e293b;
+}
+
+.management-list li.selected {
+  background: #334155;
+  outline: 1px solid #60a5fa;
+}
+
+.management-item-actions button {
+  margin-left: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.management-empty {
+  color: #94a3b8;
+  padding: 0.5rem;
+}
+
+.management-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.management-tabs button {
+  padding: 0.5rem 0.75rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.management-tabs button.active {
+  background: #334155;
+  border-color: #60a5fa;
+}
+
+@media (max-width: 720px) {
+  .management-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Spectator screen */
+
+.spectator-screen {
+  max-width: 720px;
+}
+
+.spectator-header p {
+  color: #94a3b8;
+}
+
+.spectator-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}

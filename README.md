@@ -77,19 +77,74 @@ alembic upgrade head
 alembic revision -m "description"
 ```
 
+## Comptes et multi-tenant (Phase 6)
+
+Chaque club est une `Organization` isolée : toutes les équipes, joueurs,
+matchs et events sont scopés à l'organisation de l'utilisateur connecté (un
+utilisateur d'un club ne peut jamais lire ni modifier les données d'un autre
+club — vérifié par des tests d'isolation côté API).
+
+- `POST /auth/register` crée un nouveau club et son premier utilisateur,
+  `owner`.
+- `POST /auth/login` (e-mail seul pour l'instant, pas encore de mot de passe)
+  renvoie un token JWT pour un utilisateur déjà enregistré.
+- `POST /auth/invite` (réservé à l'`owner`) ajoute un coéquipier au club avec
+  un rôle (`owner` / `head_coach` / `assistant` / `viewer`). Les `viewer` ont
+  un accès strictement en lecture ; les autres rôles peuvent tout modifier.
+- Le frontend affiche un écran de connexion/création de club au premier accès
+  (`AuthProvider` + `LoginScreen`) ; le token est gardé en `localStorage`
+  ainsi qu'un cache du profil utilisateur, pour que l'app reste utilisable
+  hors ligne après un rechargement même sans réseau.
+
+## Gestion équipes / joueurs / matchs
+
+Le bouton "Gérer les équipes, joueurs et matchs" de l'accueil ouvre un écran
+de gestion (`ManagementScreen`) : création/édition/suppression d'équipes,
+recherche et gestion des joueurs par équipe, création de matchs avec
+recherche par adversaire. Chaque match y expose aussi son lien spectateur
+(voir plus bas).
+
+## Partage live spectateur
+
+Chaque match a un `share_token` public (distinct de son id et des identifiants
+de l'organisation) qui donne accès à une page de suivi en direct, sans
+connexion requise :
+
+- `GET /live/{share_token}` : score, box score et derniers events en JSON.
+- `WS /live/{share_token}/ws` : la même chose en direct, poussé par le backend
+  à chaque batch d'events ingéré ou event annulé.
+- Frontend : `http://localhost:5173/?live=<share_token>` ouvre
+  `LiveSpectatorScreen`, qui se connecte au WebSocket et affiche score,
+  fil du match et box score en direct.
+
+Le fan-out WebSocket est géré en mémoire dans le process API (suffisant pour
+le worker unique de `docker-compose`) ; passer à Redis pub/sub si l'API est un
+jour répartie sur plusieurs workers.
+
+## Backup / restore
+
+- `GET /organizations/me/backup` (réservé à l'`owner`) exporte tout le club
+  (équipes, joueurs, matchs, rosters, events) en un seul JSON.
+- `POST /organizations/restore` (réservé à l'`owner`) réimporte ce JSON :
+  il ne peut être rejoué que dans l'organisation dont il provient, remplace
+  entièrement les équipes/matchs actuels par ceux du backup et restaure les
+  identifiants d'origine (utile après une perte de données ou une migration).
+
 ## Écran de saisie live (offline-first)
 
-Le frontend n'a pas encore d'écran de gestion équipes/matchs (prévu en Phase 6) :
-pour ouvrir l'écran de saisie live il faut d'abord seeder un match de démo via
-l'API, puis coller son `Game ID` dans le champ affiché sur la page d'accueil.
+Depuis l'écran de gestion, créez une équipe, un joueur et un match, puis
+ouvrez la saisie ("Ouvrir la saisie"). Pour un jeu de données de démonstration
+rapide sans passer par l'UI :
 
 ```bash
 cd backend
-python scripts/seed_demo.py   # imprime Game ID / Team ID / Org ID
+python scripts/seed_demo.py   # crée un club + une équipe + un match, imprime Game ID / Team ID / Auth token
 ```
 
 Puis ouvrir http://localhost:5173, coller le `Game ID` affiché et cliquer sur
-"Open live entry". L'écran reproduit la saisie en 2 temps (joueur/action dans
+"Ouvrir le match" (il faut être connecté avec le compte imprimé par le script,
+ou coller son token dans `localStorage.basketstats_token`). L'écran reproduit
+la saisie en 2 temps (joueur/action dans
 n'importe quel ordre), le shot chart inline pour les tirs, le play-by-play
 éditable avec undo, le panneau de stats live et l'indicateur de synchronisation
 (Synced / Sync pending / Offline).

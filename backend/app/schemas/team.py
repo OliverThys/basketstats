@@ -2,7 +2,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class TeamCreate(BaseModel):
-    org_id: str
     name: str
 
 

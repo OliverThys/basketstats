@@ -1,9 +1,8 @@
 from fastapi.testclient import TestClient
 
 
-def _setup_org_team_player(client: TestClient) -> tuple[str, str, str]:
-    org = client.post("/organizations", json={"name": "Season Club"}).json()
-    team = client.post("/teams", json={"org_id": org["id"], "name": "Home Team"}).json()
+def _setup_team_player(client: TestClient) -> tuple[str, str]:
+    team = client.post("/teams", json={"name": "Home Team"}).json()
     player = client.post(
         "/players",
         json={
@@ -14,14 +13,13 @@ def _setup_org_team_player(client: TestClient) -> tuple[str, str, str]:
             "position": "PG",
         },
     ).json()
-    return org["id"], team["id"], player["id"]
+    return team["id"], player["id"]
 
 
-def _create_game(client: TestClient, org_id: str, team_id: str, opponent: str, label: str) -> str:
+def _create_game(client: TestClient, team_id: str, opponent: str, label: str) -> str:
     return client.post(
         "/games",
         json={
-            "org_id": org_id,
             "home_team_id": team_id,
             "opponent_name": opponent,
             "game_date": "2026-01-15T18:00:00Z",
@@ -55,10 +53,10 @@ def _record_made_twos(
 
 
 def test_season_stats_exclude_dnp_and_exports_are_readable(client: TestClient) -> None:
-    org_id, team_id, player_id = _setup_org_team_player(client)
-    game_a = _create_game(client, org_id, team_id, "Opp A", "Game A")
-    game_b = _create_game(client, org_id, team_id, "Opp B", "Game B")
-    game_dnp = _create_game(client, org_id, team_id, "Opp A", "DNP")
+    team_id, player_id = _setup_team_player(client)
+    game_a = _create_game(client, team_id, "Opp A", "Game A")
+    game_b = _create_game(client, team_id, "Opp B", "Game B")
+    game_dnp = _create_game(client, team_id, "Opp A", "DNP")
     _record_made_twos(client, game_a, player_id, 5, dnp=False)
     _record_made_twos(client, game_b, player_id, 10, dnp=False)
     _record_made_twos(client, game_dnp, player_id, 8, dnp=True)

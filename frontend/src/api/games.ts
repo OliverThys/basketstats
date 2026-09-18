@@ -1,7 +1,7 @@
 import { apiFetch } from "./http";
 import type { CachedGame, CachedRosterEntry } from "../offline/db";
 
-interface GameApiRead {
+export interface GameApiRead {
   id: string;
   org_id: string;
   home_team_id: string;
@@ -12,6 +12,7 @@ interface GameApiRead {
   status: string;
   home_score: number;
   opponent_score: number;
+  share_token: string;
 }
 
 interface GameRosterApiRead {
@@ -53,4 +54,36 @@ export async function fetchGame(gameId: string): Promise<CachedGame> {
 export async function fetchGameRoster(gameId: string): Promise<CachedRosterEntry[]> {
   const entries = await apiFetch<GameRosterApiRead[]>(`/games/${gameId}/roster`);
   return entries.map(toCachedRosterEntry);
+}
+
+export async function fetchTeamGames(teamId: string): Promise<GameApiRead[]> {
+  return apiFetch<GameApiRead[]>(`/teams/${teamId}/games`);
+}
+
+export async function createGame(
+  teamId: string,
+  opponentName: string,
+  gameDate: string,
+  label?: string,
+): Promise<GameApiRead> {
+  return apiFetch<GameApiRead>("/games", {
+    method: "POST",
+    body: JSON.stringify({
+      home_team_id: teamId,
+      opponent_name: opponentName,
+      game_date: gameDate,
+      label: label || null,
+    }),
+  });
+}
+
+export async function addRosterEntry(
+  gameId: string,
+  playerId: string,
+  isStarter: boolean,
+): Promise<void> {
+  await apiFetch<GameRosterApiRead>(`/games/${gameId}/roster`, {
+    method: "POST",
+    body: JSON.stringify({ player_id: playerId, is_starter: isStarter, dnp: false }),
+  });
 }
