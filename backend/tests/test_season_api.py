@@ -31,9 +31,13 @@ def _create_game(client: TestClient, team_id: str, opponent: str, label: str) ->
 def _record_made_twos(
     client: TestClient, game_id: str, player_id: str, count: int, *, dnp: bool
 ) -> None:
-    client.post(
-        f"/games/{game_id}/roster",
-        json={"player_id": player_id, "is_starter": not dnp, "dnp": dnp},
+    # The roster is auto-populated (not DNP) when the game is created; flip the
+    # DNP flag here for scenarios that need to exclude the player from averages.
+    roster = client.get(f"/games/{game_id}/roster").json()
+    roster_id = next(entry["id"] for entry in roster if entry["player_id"] == player_id)
+    client.put(
+        f"/games/{game_id}/roster/{roster_id}",
+        json={"is_starter": not dnp, "dnp": dnp},
     )
     events = [
         {

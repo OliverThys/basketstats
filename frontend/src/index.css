@@ -74,7 +74,7 @@ body {
 .live-game-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 260px 1fr 260px;
+  grid-template-columns: 320px 1fr 280px;
   gap: 1rem;
   padding: 1rem;
   overflow: auto;
@@ -213,38 +213,44 @@ body {
 
 .action-button {
   flex: 1;
-  padding: 0.75rem 0.5rem;
-  border: none;
+  padding: 0.85rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   cursor: pointer;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.action-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .action-button.made {
-  background: #16a34a;
+  background: linear-gradient(180deg, #22c55e, #16a34a);
 }
 
 .action-button.made:hover {
-  background: #15803d;
+  background: linear-gradient(180deg, #16a34a, #15803d);
 }
 
 .action-button.missed {
-  background: #dc2626;
+  background: linear-gradient(180deg, #ef4444, #dc2626);
 }
 
 .action-button.missed:hover {
-  background: #b91c1c;
+  background: linear-gradient(180deg, #dc2626, #b91c1c);
 }
 
 .action-button.neutral {
-  background: #475569;
+  background: linear-gradient(180deg, #3b82f6, #2563eb);
 }
 
 .action-button.neutral:hover {
-  background: #64748b;
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
 }
 
 .action-button.selected {
@@ -272,17 +278,18 @@ body {
 .opponent-button {
   flex: 1;
   padding: 0.75rem;
-  background: #475569;
-  border: none;
+  background: linear-gradient(180deg, #64748b, #475569);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   color: white;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .opponent-button:hover {
-  background: #64748b;
+  background: linear-gradient(180deg, #78859a, #64748b);
 }
 
 /* Player list */
@@ -291,43 +298,56 @@ body {
   background: #1e293b;
   border-radius: 12px;
   padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: 0.5rem;
+  align-content: start;
+}
+
+.player-list-empty {
+  grid-column: 1 / -1;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .player-list-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: #334155;
-  border: none;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.4rem;
+  min-height: 76px;
+  background: linear-gradient(180deg, #3f4f66, #334155);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   color: white;
   cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
+  transition: all 0.15s;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 
 .player-list-item:hover {
-  background: #475569;
+  background: linear-gradient(180deg, #4c5f7a, #475569);
 }
 
 .player-list-item.selected {
-  background: #f97316;
+  background: linear-gradient(180deg, #fb923c, #f97316);
   color: #ffffff;
 }
 
 .player-list-item .jersey {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  min-width: 2rem;
+  line-height: 1;
 }
 
 .player-list-item .name {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* Play by play */

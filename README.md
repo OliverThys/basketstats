@@ -19,7 +19,7 @@ docker compose up --build
 ```
 
 - API : http://localhost:8000 (`/health`, `/docs`)
-- Front : http://localhost:5173
+- Front : http://localhost:5190
 
 ## Développement backend (hors Docker)
 
@@ -113,7 +113,7 @@ connexion requise :
 - `GET /live/{share_token}` : score, box score et derniers events en JSON.
 - `WS /live/{share_token}/ws` : la même chose en direct, poussé par le backend
   à chaque batch d'events ingéré ou event annulé.
-- Frontend : `http://localhost:5173/?live=<share_token>` ouvre
+- Frontend : `http://localhost:5190/?live=<share_token>` ouvre
   `LiveSpectatorScreen`, qui se connecte au WebSocket et affiche score,
   fil du match et box score en direct.
 
@@ -141,7 +141,7 @@ cd backend
 python scripts/seed_demo.py   # crée un club + une équipe + un match, imprime Game ID / Team ID / Auth token
 ```
 
-Puis ouvrir http://localhost:5173, coller le `Game ID` affiché et cliquer sur
+Puis ouvrir http://localhost:5190, coller le `Game ID` affiché et cliquer sur
 "Ouvrir le match" (il faut être connecté avec le compte imprimé par le script,
 ou coller son token dans `localStorage.basketstats_token`). L'écran reproduit
 la saisie en 2 temps (joueur/action dans

@@ -31,15 +31,31 @@ def test_team_player_game_crud_flow(client: TestClient) -> None:
         },
     ).json()
 
+    # Creating a game auto-populates the roster from the team's current players.
+    roster_list = client.get(f"/games/{game['id']}/roster").json()
+    assert len(roster_list) == 1
+    assert roster_list[0]["player_id"] == player_id
+    assert roster_list[0]["is_starter"] is True
+
+    # A player added to the team after the game was created can still be added manually.
+    late_player = client.post(
+        "/players",
+        json={
+            "team_id": team_id,
+            "first_name": "Alex",
+            "last_name": "Smith",
+            "jersey_number": 9,
+            "position": "SG",
+        },
+    ).json()
     roster_entry = client.post(
         f"/games/{game['id']}/roster",
-        json={"player_id": player_id, "is_starter": True, "dnp": False},
+        json={"player_id": late_player["id"], "is_starter": False, "dnp": False},
     )
     assert roster_entry.status_code == 201
 
     roster_list = client.get(f"/games/{game['id']}/roster").json()
-    assert len(roster_list) == 1
-    assert roster_list[0]["player_id"] == player_id
+    assert len(roster_list) == 2
 
     games_for_org = client.get("/games").json()
     assert len(games_for_org) == 1

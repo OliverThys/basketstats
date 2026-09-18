@@ -29,6 +29,9 @@ export function PlayerGrid({ players, roster, selectedPlayerId, onSelect }: Play
           </button>
         );
       })}
+      {activeRoster.length === 0 && (
+        <p className="player-list-empty">Aucune joueuse sur la feuille de match.</p>
+      )}
     </div>
   );
 }

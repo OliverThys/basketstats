@@ -38,6 +38,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   worker:
     build: ./backend
@@ -59,7 +60,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:5173"
+      - "5190:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules

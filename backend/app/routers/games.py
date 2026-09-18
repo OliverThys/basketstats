@@ -8,7 +8,7 @@ from app.auth import CurrentUser, get_current_user, require_write
 from app.database import get_db
 from app.exports import box_score_csv, box_score_pdf, shot_zones_csv
 from app.live import broadcaster
-from app.models import Game, GameEvent, GameRoster
+from app.models import Game, GameEvent, GameRoster, Player
 from app.routers.live import build_live_snapshot
 from app.schemas.box_score import GameBoxScoreOut
 from app.schemas.game import GameCreate, GameRead, GameUpdate
@@ -31,9 +31,17 @@ def create_game(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(require_write),
 ) -> Game:
-    get_org_team(db, payload.home_team_id, current_user.org_id)
+    team = get_org_team(db, payload.home_team_id, current_user.org_id)
     game = Game(org_id=current_user.org_id, **payload.model_dump())
     db.add(game)
+    db.flush()
+
+    team_players = db.scalars(
+        select(Player).where(Player.team_id == team.id).order_by(Player.jersey_number)
+    ).all()
+    for index, player in enumerate(team_players):
+        db.add(GameRoster(game_id=game.id, player_id=player.id, is_starter=index < 5, dnp=False))
+
     db.commit()
     db.refresh(game)
     return game

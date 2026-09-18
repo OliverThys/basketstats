@@ -21,10 +21,7 @@ def _seed_org(client: TestClient) -> dict:
             "game_date": "2026-01-15T18:00:00Z",
         },
     ).json()
-    client.post(
-        f"/games/{game['id']}/roster",
-        json={"player_id": player["id"], "is_starter": True, "dnp": False},
-    )
+    # The roster is auto-populated from the team's players when the game is created.
     client.post(
         f"/games/{game['id']}/events/batch",
         json={
