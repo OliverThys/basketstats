@@ -38,7 +38,6 @@ export function LoginScreen() {
           <div className="auth-hero-scrim" aria-hidden="true" />
 
           <div className="auth-hero-copy">
-            <div className="auth-hero-badge">FIBA · OFFLINE-FIRST · MULTI-CLUBS</div>
             <p className="auth-hero-tagline">
               Chaque action compte, sur le terrain et hors ligne.
             </p>
