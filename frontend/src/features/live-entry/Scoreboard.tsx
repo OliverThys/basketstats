@@ -41,19 +41,23 @@ export function Scoreboard({
   return (
     <section className="scoreboard">
       <div className="scoreboard-score">
-        <FoulDots count={homeFouls} className={homeInBonus ? "bonus" : ""} />
-        <div className="marquee">
-          <div className="marquee-names">
-            <span className="team-name">{homeTeamName}</span>
-            <span className="team-name">{opponentName}</span>
+        <div className="led-panel">
+          <div className="led-side">
+            <FoulDots count={homeFouls} className={homeInBonus ? "bonus" : ""} />
           </div>
-          <div className="led-panel">
+          <div className="led-team">
+            <span className="led-team-name">{homeTeamName}</span>
             <LedNumber value={overall.homeScore} />
-            <span className="led-sep" />
+          </div>
+          <span className="led-sep" />
+          <div className="led-team">
+            <span className="led-team-name">{opponentName}</span>
             <LedNumber value={overall.opponentScore} />
           </div>
+          <div className="led-side">
+            <FoulDots count={opponentFouls} className={opponentInBonus ? "bonus" : ""} />
+          </div>
         </div>
-        <FoulDots count={opponentFouls} className={opponentInBonus ? "bonus" : ""} />
       </div>
       <div className="scoreboard-periods">
         {PERIODS.map((p) => (
