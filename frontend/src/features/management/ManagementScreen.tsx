@@ -17,12 +17,11 @@ import { Modal } from "../live-entry/Modal";
 const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
 
 interface ManagementScreenProps {
-  onBack: () => void;
   onOpenGame: (gameId: string) => void;
   onOpenSeason: (teamId: string) => void;
 }
 
-export function ManagementScreen({ onBack, onOpenGame, onOpenSeason }: ManagementScreenProps) {
+export function ManagementScreen({ onOpenGame, onOpenSeason }: ManagementScreenProps) {
   const { user, logout } = useAuth();
   const canWrite = user?.role !== "viewer";
 
@@ -74,115 +73,117 @@ export function ManagementScreen({ onBack, onOpenGame, onOpenSeason }: Managemen
   const selectedTeam = teams.find((team) => team.id === selectedTeamId) ?? null;
 
   return (
-    <main className="app-shell management-screen">
-      <header className="management-header">
-        <h1>Gestion du club</h1>
-        <div>
-          <button className="header-btn" onClick={onBack}>
-            Accueil
-          </button>
-          <button className="header-btn" onClick={logout}>
-            Déconnexion
-          </button>
-        </div>
-      </header>
-
-      <div className="management-layout">
-        <section className="management-teams">
-          <div className="management-toolbar">
-            <input
-              placeholder="Rechercher une équipe..."
-              value={teamSearch}
-              onChange={(event) => setTeamSearch(event.target.value)}
-            />
-            {canWrite && (
-              <button
-                onClick={() => {
-                  setEditingTeam(null);
-                  setTeamModalOpen(true);
-                }}
-              >
-                + Équipe
-              </button>
-            )}
+    <div className="app-frame">
+      <div className="app-screen management-screen">
+        <header className="app-screen-header">
+          <h1>Gestion du club</h1>
+          <div className="app-screen-header-actions">
+            <button className="header-btn" onClick={logout}>
+              Déconnexion
+            </button>
           </div>
-          <ul className="management-list">
-            {teams.map((team) => (
-              <li
-                key={team.id}
-                className={team.id === selectedTeamId ? "selected" : ""}
-                onClick={() => setSelectedTeamId(team.id)}
-              >
-                <span>{team.name}</span>
-                {canWrite && (
-                  <span className="management-item-actions">
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setEditingTeam(team);
-                        setTeamModalOpen(true);
-                      }}
-                    >
-                      Modifier
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        void handleDeleteTeam(team);
-                      }}
-                    >
-                      Supprimer
-                    </button>
-                  </span>
-                )}
-              </li>
-            ))}
-            {teams.length === 0 && <li className="management-empty">Aucune équipe</li>}
-          </ul>
-        </section>
+        </header>
 
-        <section className="management-detail">
-          {!selectedTeam ? (
-            <p>Sélectionnez ou créez une équipe.</p>
-          ) : (
-            <>
-              <div className="management-tabs">
+        <div className="management-layout">
+          <section className="management-teams">
+            <div className="management-toolbar">
+              <input
+                placeholder="Rechercher une équipe..."
+                value={teamSearch}
+                onChange={(event) => setTeamSearch(event.target.value)}
+              />
+              {canWrite && (
                 <button
-                  className={tab === "players" ? "active" : ""}
-                  onClick={() => setTab("players")}
+                  className="header-btn"
+                  onClick={() => {
+                    setEditingTeam(null);
+                    setTeamModalOpen(true);
+                  }}
                 >
-                  Joueurs
+                  + Équipe
                 </button>
-                <button className={tab === "games" ? "active" : ""} onClick={() => setTab("games")}>
-                  Matchs
-                </button>
-                <button onClick={() => onOpenSeason(selectedTeam.id)}>Stats de saison</button>
-              </div>
-              {tab === "players" ? (
-                <PlayersPanel teamId={selectedTeam.id} canWrite={canWrite} />
-              ) : (
-                <GamesPanel
-                  teamId={selectedTeam.id}
-                  canWrite={canWrite}
-                  onOpenGame={onOpenGame}
-                />
               )}
-            </>
-          )}
-        </section>
-      </div>
+            </div>
+            <ul className="management-list">
+              {teams.map((team) => (
+                <li
+                  key={team.id}
+                  className={team.id === selectedTeamId ? "selected" : ""}
+                  onClick={() => setSelectedTeamId(team.id)}
+                >
+                  <span>{team.name}</span>
+                  {canWrite && (
+                    <span className="management-item-actions">
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditingTeam(team);
+                          setTeamModalOpen(true);
+                        }}
+                      >
+                        Modifier
+                      </button>
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void handleDeleteTeam(team);
+                        }}
+                      >
+                        Supprimer
+                      </button>
+                    </span>
+                  )}
+                </li>
+              ))}
+              {teams.length === 0 && <li className="management-empty">Aucune équipe</li>}
+            </ul>
+          </section>
 
-      {teamModalOpen && (
-        <TeamFormModal
-          initialName={editingTeam?.name ?? ""}
-          onClose={() => {
-            setTeamModalOpen(false);
-            setEditingTeam(null);
-          }}
-          onSave={handleSaveTeam}
-        />
-      )}
-    </main>
+          <section className="management-detail">
+            {!selectedTeam ? (
+              <p>Sélectionnez ou créez une équipe.</p>
+            ) : (
+              <>
+                <div className="management-tabs">
+                  <button
+                    className={tab === "players" ? "active" : ""}
+                    onClick={() => setTab("players")}
+                  >
+                    Joueurs
+                  </button>
+                  <button className={tab === "games" ? "active" : ""} onClick={() => setTab("games")}>
+                    Matchs
+                  </button>
+                  <button className="header-btn" onClick={() => onOpenSeason(selectedTeam.id)}>
+                    Stats de saison
+                  </button>
+                </div>
+                {tab === "players" ? (
+                  <PlayersPanel teamId={selectedTeam.id} canWrite={canWrite} />
+                ) : (
+                  <GamesPanel
+                    teamId={selectedTeam.id}
+                    canWrite={canWrite}
+                    onOpenGame={onOpenGame}
+                  />
+                )}
+              </>
+            )}
+          </section>
+        </div>
+
+        {teamModalOpen && (
+          <TeamFormModal
+            initialName={editingTeam?.name ?? ""}
+            onClose={() => {
+              setTeamModalOpen(false);
+              setEditingTeam(null);
+            }}
+            onSave={handleSaveTeam}
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -252,6 +253,7 @@ function PlayersPanel({ teamId, canWrite }: { teamId: string; canWrite: boolean 
         />
         {canWrite && (
           <button
+            className="header-btn"
             onClick={() => {
               setEditingPlayer(null);
               setModalOpen(true);
@@ -261,7 +263,7 @@ function PlayersPanel({ teamId, canWrite }: { teamId: string; canWrite: boolean 
           </button>
         )}
       </div>
-      <table className="box-score-table">
+      <table className="data-table">
         <thead>
           <tr>
             <th>#</th>
@@ -428,9 +430,13 @@ function GamesPanel({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        {canWrite && <button onClick={() => setModalOpen(true)}>+ Match</button>}
+        {canWrite && (
+          <button className="header-btn" onClick={() => setModalOpen(true)}>
+            + Match
+          </button>
+        )}
       </div>
-      <table className="box-score-table">
+      <table className="data-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -449,8 +455,12 @@ function GamesPanel({
               </td>
               <td>{game.status}</td>
               <td>
-                <button onClick={() => onOpenGame(game.id)}>Ouvrir la saisie</button>
-                <button onClick={() => copySpectatorLink(game)}>Lien spectateur</button>
+                <button className="header-btn" onClick={() => onOpenGame(game.id)}>
+                  Ouvrir la saisie
+                </button>
+                <button className="header-btn" onClick={() => copySpectatorLink(game)}>
+                  Lien spectateur
+                </button>
               </td>
             </tr>
           ))}

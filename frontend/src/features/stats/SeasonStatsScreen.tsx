@@ -60,30 +60,32 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
   const zoneReport = zonesQuery.data ? reportFromApi(zonesQuery.data) : null;
 
   return (
-    <main className="app-shell season-stats-screen">
-      <header className="season-stats-header">
-        <button className="header-btn" onClick={onBack}>Retour</button>
-        <h1>{teamQuery.data?.name ?? "Stats de la saison"}</h1>
-        <div className="export-actions">
-          <button onClick={() => void downloadExport(`/teams/${teamId}/season-stats.csv`, `season-${teamId}.csv`)}>
-            CSV
-          </button>
-          <button onClick={() => void downloadExport(`/teams/${teamId}/season-stats.pdf`, `season-${teamId}.pdf`)}>
-            PDF
-          </button>
-        </div>
-      </header>
+    <div className="app-frame">
+      <div className="app-screen season-stats-screen">
+        <header className="app-screen-header">
+          <button className="header-btn" onClick={onBack}>Retour</button>
+          <h1>{teamQuery.data?.name ?? "Stats de la saison"}</h1>
+          <div className="data-export-actions">
+            <button className="header-btn" onClick={() => void downloadExport(`/teams/${teamId}/season-stats.csv`, `season-${teamId}.csv`)}>
+              CSV
+            </button>
+            <button className="header-btn" onClick={() => void downloadExport(`/teams/${teamId}/season-stats.pdf`, `season-${teamId}.pdf`)}>
+              PDF
+            </button>
+          </div>
+        </header>
 
-      {statsQuery.isError && <p>Impossible de charger les stats de la saison. Vérifiez l'ID de l'équipe et l'API.</p>}
-      {statsQuery.isLoading && <p>Chargement de la saison…</p>}
+        <div className="season-stats-body">
+        {statsQuery.isError && <p>Impossible de charger les stats de la saison. Vérifiez l'ID de l'équipe et l'API.</p>}
+        {statsQuery.isLoading && <p>Chargement de la saison…</p>}
 
-      {statsQuery.data && (
-        <>
-          <p className="season-meta">
-            {statsQuery.data.games} matchs · Les matchs non joués (DNP) sont exclus des moyennes par match
-          </p>
-          <div className="table-scroll">
-            <table className="box-score-table">
+        {statsQuery.data && (
+          <>
+            <p className="season-meta">
+              {statsQuery.data.games} matchs · Les matchs non joués (DNP) sont exclus des moyennes par match
+            </p>
+            <div className="table-scroll">
+              <table className="data-table">
               <thead>
                 <tr>
                   <th>Joueur</th>
@@ -136,17 +138,19 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        </>
-      )}
+              </table>
+            </div>
+          </>
+        )}
 
-      {zoneReport && (
-        <section className="shot-zones-section">
-          <h2>Zones de tir</h2>
-          <ShotZonesTable report={zoneReport} />
-        </section>
-      )}
-    </main>
+        {zoneReport && (
+          <section className="data-zones-section">
+            <h2>Zones de tir</h2>
+            <ShotZonesTable report={zoneReport} />
+          </section>
+        )}
+        </div>
+      </div>
+    </div>
   );
 }

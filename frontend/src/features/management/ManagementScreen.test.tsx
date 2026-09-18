@@ -43,9 +43,7 @@ vi.mock("../../api/games", () => ({
 
 describe("ManagementScreen", () => {
   it("lists the organization's teams and their players", async () => {
-    render(
-      <ManagementScreen onBack={() => {}} onOpenGame={() => {}} onOpenSeason={() => {}} />,
-    );
+    render(<ManagementScreen onOpenGame={() => {}} onOpenSeason={() => {}} />);
 
     expect(await screen.findByText("BC Spartak")).toBeInTheDocument();
     expect(await screen.findByText("Jane Doe")).toBeInTheDocument();

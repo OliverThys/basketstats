@@ -4,17 +4,14 @@ import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import App from "./App";
-
-vi.mock("./api/client", () => ({
-  fetchHealth: () => Promise.resolve({ status: "ok" }),
-}));
+import { getToken, getStoredUser } from "./api/http";
 
 vi.mock("./api/http", () => ({
   API_BASE_URL: "http://localhost:8000",
-  getToken: () => "fake-token",
+  getToken: vi.fn(() => "fake-token"),
   setToken: vi.fn(),
   clearToken: vi.fn(),
-  getStoredUser: () => null,
+  getStoredUser: vi.fn(() => null),
   setStoredUser: vi.fn(),
   apiFetch: vi.fn(),
   ApiError: class ApiError extends Error {
@@ -39,25 +36,28 @@ vi.mock("./api/auth", () => ({
   inviteUser: vi.fn(),
 }));
 
+vi.mock("./api/teams", () => ({
+  fetchTeams: vi.fn(() => Promise.resolve([])),
+  createTeam: vi.fn(),
+  updateTeam: vi.fn(),
+  deleteTeam: vi.fn(),
+}));
+
 function renderWithClient(ui: ReactElement) {
   const queryClient = new QueryClient();
   return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 }
 
 describe("App", () => {
-  it("renders the app title", async () => {
+  it("goes straight to the club management screen once authenticated (no landing page)", async () => {
     renderWithClient(<App />);
-    expect(await screen.findByText("BasketStats")).toBeInTheDocument();
+    expect(await screen.findByText("Gestion du club")).toBeInTheDocument();
   });
 
-  it("displays the API status once loaded", async () => {
+  it("shows the login screen when there is no active session", async () => {
+    vi.mocked(getToken).mockReturnValue(null);
+    vi.mocked(getStoredUser).mockReturnValue(null);
     renderWithClient(<App />);
-    expect(await screen.findByText(/Statut API: ok/)).toBeInTheDocument();
-  });
-
-  it("offers a team ID field for season stats", async () => {
-    renderWithClient(<App />);
-    expect(await screen.findByLabelText("ID de l'équipe")).toBeInTheDocument();
-    expect(screen.getByText("Stats de la saison")).toBeInTheDocument();
+    expect(await screen.findByLabelText("E-mail")).toBeInTheDocument();
   });
 });
