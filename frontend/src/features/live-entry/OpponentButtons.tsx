@@ -9,7 +9,7 @@ export function OpponentButtons({ onScore, opponentName }: OpponentButtonsProps)
   return (
     <div className="action-group opponent-scores">
       <h4>Score adversaire — {opponentName}</h4>
-      <div className="action-column">
+      <div className="action-grid-2">
         <button className="opponent-button" onClick={() => onScore(ActionType.OPP_FT_MADE)}>
           Lancer franc
         </button>
