@@ -76,6 +76,31 @@ alembic upgrade head
 alembic revision -m "description"
 ```
 
+## Écran de saisie live (offline-first)
+
+Le frontend n'a pas encore d'écran de gestion équipes/matchs (prévu en Phase 6) :
+pour ouvrir l'écran de saisie live il faut d'abord seeder un match de démo via
+l'API, puis coller son `Game ID` dans le champ affiché sur la page d'accueil.
+
+```bash
+cd backend
+python scripts/seed_demo.py   # imprime Game ID / Team ID / Org ID
+```
+
+Puis ouvrir http://localhost:5173, coller le `Game ID` affiché et cliquer sur
+"Open live entry". L'écran reproduit la saisie en 2 temps (joueur/action dans
+n'importe quel ordre), le shot chart inline pour les tirs, le play-by-play
+éditable avec undo, le panneau de stats live et l'indicateur de synchronisation
+(Synced / Sync pending / Offline).
+
+Tout event est d'abord écrit dans IndexedDB (Dexie) puis synchronisé vers l'API
+dès que la connexion est disponible (poussée en batch idempotente sur l'UUID
+client ; les undo/void déjà synchronisés sont propagés via un appel dédié).
+Le moteur de dérivation du box score est réimplémenté en TypeScript
+(`frontend/src/domain/boxScore.ts`) et testé avec la même fixture de référence
+que le backend (`frontend/src/domain/referenceGame.fixture.ts`), pour garantir
+que les deux calculs ne divergent jamais.
+
 ## Documentation
 
 - `docs/brief.md` : brief maître et découpage en phases.

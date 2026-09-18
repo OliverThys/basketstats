@@ -1,23 +1,54 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { fetchHealth } from "./api/client";
+import { LiveGameScreen } from "./features/live-entry/LiveGameScreen";
 
-function App() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["health"],
-    queryFn: fetchHealth,
-  });
+function GameLoader({ onOpen }: { onOpen: (gameId: string) => void }) {
+  const [gameId, setGameId] = useState("");
 
   return (
     <main className="app-shell">
       <h1>BasketStats</h1>
       <p>FIBA basketball stats, offline-first.</p>
-      <p data-testid="api-status">
-        API status:{" "}
-        {isLoading ? "checking..." : isError ? "unreachable" : data?.status}
-      </p>
+      <ApiStatus />
+      <form
+        className="game-loader"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (gameId.trim()) onOpen(gameId.trim());
+        }}
+      >
+        <label htmlFor="game-id">Game ID</label>
+        <input
+          id="game-id"
+          value={gameId}
+          onChange={(event) => setGameId(event.target.value)}
+          placeholder="Paste a game ID (see scripts/seed_demo.py)"
+        />
+        <button type="submit">Open live entry</button>
+      </form>
     </main>
   );
+}
+
+function ApiStatus() {
+  const { data, isLoading, isError } = useQuery({ queryKey: ["health"], queryFn: fetchHealth });
+  return (
+    <p data-testid="api-status">
+      API status: {isLoading ? "checking..." : isError ? "unreachable" : data?.status}
+    </p>
+  );
+}
+
+function App() {
+  const [gameId, setGameId] = useState<string | null>(null);
+
+  if (gameId) {
+    return <LiveGameScreen gameId={gameId} onDone={() => setGameId(null)} />;
+  }
+
+  return <GameLoader onOpen={setGameId} />;
 }
 
 export default App;

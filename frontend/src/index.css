@@ -14,3 +14,421 @@ body {
   margin: 0 auto;
   padding: 2rem 1rem;
 }
+
+.game-loader {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.game-loader input {
+  flex: 1;
+  padding: 0.5rem;
+}
+
+/* Live entry screen */
+
+.live-game-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.live-game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.live-game-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.live-game-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  overflow: auto;
+}
+
+.live-game-center {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.live-game-error,
+.live-game-loading {
+  padding: 2rem;
+}
+
+/* Scoreboard */
+
+.scoreboard {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.scoreboard-names,
+.scoreboard-score {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+}
+
+.scoreboard-score {
+  font-size: 2rem;
+  font-weight: 700;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.scoreboard-periods {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.period-tab {
+  flex: 1;
+  padding: 0.25rem;
+  background: #334155;
+  border: none;
+  color: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.period-tab.active {
+  background: #f97316;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.scoreboard-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.team-fouls.bonus {
+  color: #f97316;
+  font-weight: 700;
+}
+
+/* Action buttons */
+
+.action-buttons {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.action-group h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  flex: 1;
+  min-width: 70px;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+}
+
+.action-button.made {
+  background: #16a34a;
+}
+
+.action-button.missed {
+  background: #dc2626;
+}
+
+.action-button.neutral {
+  background: #475569;
+}
+
+.action-button.selected {
+  outline: 3px solid #f97316;
+}
+
+/* Opponent buttons */
+
+.opponent-buttons {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.opponent-button {
+  padding: 0.5rem 0.75rem;
+  background: #475569;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Player grid */
+
+.player-grid {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.player-button {
+  padding: 0.5rem;
+  background: #334155;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-button.selected {
+  outline: 3px solid #f97316;
+}
+
+.player-button .jersey {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Play by play */
+
+.play-by-play {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+.play-by-play header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.play-by-play ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+.play-by-play li {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #334155;
+  font-size: 0.85rem;
+}
+
+.play-by-play li.voided {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.period-badge {
+  color: #94a3b8;
+  min-width: 2rem;
+}
+
+.void-button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+}
+
+.undo-last {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.4rem;
+  background: #7c2d12;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Stats panel */
+
+.stats-panel {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+.stats-panel table,
+.box-score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.stats-panel th,
+.stats-panel td,
+.box-score-table th,
+.box-score-table td {
+  padding: 0.25rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid #334155;
+}
+
+.box-score-table .totals-row {
+  font-weight: 700;
+}
+
+/* Shot pad */
+
+.shot-pad {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #b45309;
+  border: 2px solid #78350f;
+  border-radius: 4px;
+  cursor: crosshair;
+}
+
+.shot-pad-hoop {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #fb923c;
+}
+
+.shot-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.shot-marker.made {
+  background: transparent;
+  border: 2px solid #22c55e;
+}
+
+.shot-marker.missed::before,
+.shot-marker.missed::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: #ef4444;
+  top: 50%;
+  left: 0;
+}
+
+.shot-marker.missed::before {
+  transform: rotate(45deg);
+}
+
+.shot-marker.missed::after {
+  transform: rotate(-45deg);
+}
+
+.shot-capture {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Sync badge */
+
+.sync-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.sync-badge.synced {
+  background: #14532d;
+  color: #86efac;
+}
+
+.sync-badge.pending {
+  background: #78350f;
+  color: #fdba74;
+}
+
+.sync-badge.offline {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+/* Modal */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-panel {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 1rem;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow: auto;
+}
+
+.modal-panel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
