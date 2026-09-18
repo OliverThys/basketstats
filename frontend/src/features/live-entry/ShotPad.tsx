@@ -11,7 +11,7 @@ interface ShotPadProps {
   interactive?: boolean;
 }
 
-function pickNormalized(event: React.MouseEvent<HTMLDivElement>, pad: HTMLDivElement): { x: number; y: number } {
+function pickNormalized(event: { clientX: number; clientY: number }, pad: HTMLDivElement): { x: number; y: number } {
   const svg = pad.querySelector("svg");
   if (svg instanceof SVGSVGElement) {
     const ctm = svg.getScreenCTM?.();
@@ -32,14 +32,23 @@ function pickNormalized(event: React.MouseEvent<HTMLDivElement>, pad: HTMLDivEle
 
 /** Tap-to-record FIBA court surface. Coordinates are normalized 0..1 so they
  * stay independent of screen size; the court itself is rendered by
- * FibaCourtSvg using real FIBA dimensions. Clicks are mapped through the SVG
+ * FibaCourtSvg using real FIBA dimensions. Picks are mapped through the SVG
  * CTM when available (correct even with letterboxing), with a bounding-box
- * fallback for jsdom. */
+ * fallback for jsdom.
+ *
+ * Uses Pointer Events rather than onClick: a plain <div>'s onClick handler
+ * (attached via addEventListener, not an HTML `onclick` attribute) is not
+ * guaranteed to fire from a touch tap on iOS/iPadOS Safari unless the
+ * element resolves as "clickable" (cursor: pointer, a real onclick
+ * attribute, role=button, etc.) — this court uses `cursor: crosshair`, so
+ * touch taps on iPad were silently swallowed. Pointer events don't have
+ * that ambiguity and fire uniformly for mouse, touch and pen. */
 export function ShotPad({ markers, onPick, interactive = true }: ShotPadProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  function handleClick(event: React.MouseEvent<HTMLDivElement>) {
+  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
     if (!interactive || !onPick || !ref.current) return;
+    event.preventDefault();
     const { x, y } = pickNormalized(event, ref.current);
     onPick(x, y);
   }
@@ -48,7 +57,7 @@ export function ShotPad({ markers, onPick, interactive = true }: ShotPadProps) {
     <div
       ref={ref}
       className="shot-pad"
-      onClick={handleClick}
+      onPointerUp={handlePointerUp}
       role={interactive ? "button" : undefined}
       data-testid={interactive ? "shot-pad" : "shot-pad-mini"}
     >

@@ -81,7 +81,7 @@ describe("LiveGameScreen", () => {
       y: 0,
       toJSON: () => {},
     } as DOMRect);
-    fireEvent.click(pad, { clientX: 25, clientY: 50 });
+    fireEvent.pointerUp(pad, { clientX: 25, clientY: 50 });
 
     await waitFor(async () => {
       const stored = await db.gameEvents.where("gameId").equals("game-1").toArray();
@@ -111,7 +111,7 @@ describe("LiveGameScreen", () => {
       y: 0,
       toJSON: () => {},
     } as DOMRect);
-    fireEvent.click(pad, { clientX: 80, clientY: 50 });
+    fireEvent.pointerUp(pad, { clientX: 80, clientY: 50 });
 
     await waitFor(() => expect(screen.getByText(/2 points marqués/)).toBeInTheDocument());
 

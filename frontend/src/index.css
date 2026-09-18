@@ -849,6 +849,7 @@ body {
   width: 100%;
   aspect-ratio: 14 / 15;
   cursor: crosshair;
+  touch-action: none;
 }
 
 .fiba-court {
@@ -1165,10 +1166,22 @@ body {
 }
 
 .modal-panel header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.modal-panel header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #f97316, #7c3f56 65%, transparent);
 }
 
 /* Auth screen — the app's entry point, styled after the pixel-art DA:
@@ -1233,13 +1246,17 @@ body {
 .auth-tabs button {
   flex: 1;
   padding: 0.5rem;
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #5c4152, #45303d);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
-  color: #cbd5e1;
+  color: #e8d9e0;
   font-weight: 600;
   cursor: pointer;
+}
+
+.auth-tabs button:hover {
+  background: linear-gradient(180deg, #6b4d60, #543a49);
 }
 
 .auth-tabs button.active {
@@ -1344,10 +1361,14 @@ body {
   padding: 0.6rem 0.7rem;
   border-radius: 4px;
   cursor: pointer;
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #5c4152, #45303d);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   font-weight: 600;
+}
+
+.management-list li:hover {
+  background: linear-gradient(180deg, #6b4d60, #543a49);
 }
 
 .management-list li > span:first-child {
@@ -1390,13 +1411,17 @@ body {
 
 .management-tabs button {
   padding: 0.4rem 0.8rem;
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #5c4152, #45303d);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
-  color: #cbd5e1;
+  color: #e8d9e0;
   font-weight: 600;
   cursor: pointer;
+}
+
+.management-tabs button:hover {
+  background: linear-gradient(180deg, #6b4d60, #543a49);
 }
 
 .management-tabs button.active {
