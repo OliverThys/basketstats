@@ -2,6 +2,7 @@ import { computeBoxScore } from "../../domain/boxScore";
 import { ActionType } from "../../domain/actionTypes";
 import type { LocalGameEvent } from "../../offline/db";
 import { FoulDots } from "./FoulDots";
+import { LedNumber } from "./LedDigits";
 
 const PERIODS = [1, 2, 3, 4, 5] as const;
 const PERIOD_LABELS: Record<number, string> = { 1: "Q1", 2: "Q2", 3: "Q3", 4: "Q4", 5: "OT" };
@@ -41,14 +42,16 @@ export function Scoreboard({
     <section className="scoreboard">
       <div className="scoreboard-score">
         <FoulDots count={homeFouls} className={homeInBonus ? "bonus" : ""} />
-        <div className="team-score">
-          <span className="team-name">{homeTeamName}</span>
-          <span className="score-value">{overall.homeScore}</span>
-        </div>
-        <span className="scoreboard-sep">-</span>
-        <div className="team-score">
-          <span className="team-name">{opponentName}</span>
-          <span className="score-value">{overall.opponentScore}</span>
+        <div className="marquee">
+          <div className="marquee-names">
+            <span className="team-name">{homeTeamName}</span>
+            <span className="team-name">{opponentName}</span>
+          </div>
+          <div className="led-panel">
+            <LedNumber value={overall.homeScore} />
+            <span className="led-sep" />
+            <LedNumber value={overall.opponentScore} />
+          </div>
         </div>
         <FoulDots count={opponentFouls} className={opponentInBonus ? "bonus" : ""} />
       </div>
