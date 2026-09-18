@@ -1020,9 +1020,12 @@ body {
   background: #1e293b;
   border-radius: 8px;
   padding: 1rem;
+  box-sizing: border-box;
+  width: min(420px, 92vw);
   max-width: 90vw;
   max-height: 85vh;
   overflow: auto;
+  flex-shrink: 0;
 }
 
 .modal-panel:has(.shot-chart-view) {
@@ -1045,15 +1048,6 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.export-actions button {
-  padding: 0.35rem 0.7rem;
-  background: #334155;
-  border: none;
-  border-radius: 4px;
-  color: inherit;
-  cursor: pointer;
-}
-
 .season-stats-body {
   flex: 1;
   overflow-y: auto;
@@ -1063,6 +1057,71 @@ body {
 .data-export-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+/* Export buttons (CSV / PDF) */
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease;
+}
+
+.export-btn:active {
+  transform: translateY(1px);
+}
+
+.export-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.export-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.export-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.export-btn-csv {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  border-bottom-color: rgba(0, 0, 0, 0.35);
+}
+
+.export-btn-pdf {
+  background: linear-gradient(180deg, #f87171, #dc2626);
+  border-bottom-color: rgba(0, 0, 0, 0.35);
+}
+
+.export-btn-error {
+  background: linear-gradient(180deg, #f59e0b, #d97706) !important;
+}
+
+.export-btn-spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  animation: export-spin 0.7s linear infinite;
+}
+
+@keyframes export-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .season-meta {

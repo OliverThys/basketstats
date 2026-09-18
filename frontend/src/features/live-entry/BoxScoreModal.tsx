@@ -1,6 +1,6 @@
 import { computeBoxScore } from "../../domain/boxScore";
 import { computeShotZones } from "../../domain/shotZones";
-import { downloadExport } from "../../api/exports";
+import { ExportButton } from "../../components/ExportButton";
 import type { CachedPlayer, CachedRosterEntry, LocalGameEvent } from "../../offline/db";
 import { ShotZonesTable } from "../stats/ShotZonesTable";
 import { Modal } from "./Modal";
@@ -34,12 +34,16 @@ export function BoxScoreModal({ gameId, events, players, roster, onClose }: BoxS
   return (
     <Modal title="Statistiques (Box Score)" onClose={onClose}>
       <div className="export-actions">
-        <button onClick={() => void downloadExport(`/games/${gameId}/box-score.csv`, `box-score-${gameId}.csv`)}>
-          CSV
-        </button>
-        <button onClick={() => void downloadExport(`/games/${gameId}/box-score.pdf`, `box-score-${gameId}.pdf`)}>
-          PDF
-        </button>
+        <ExportButton
+          kind="csv"
+          path={`/games/${gameId}/box-score.csv`}
+          filename={`box-score-${gameId}.csv`}
+        />
+        <ExportButton
+          kind="pdf"
+          path={`/games/${gameId}/box-score.pdf`}
+          filename={`box-score-${gameId}.pdf`}
+        />
       </div>
       <div className="table-scroll">
         <table className="box-score-table">

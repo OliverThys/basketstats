@@ -240,7 +240,7 @@ def get_box_score_csv(
     content = box_score_csv(build_game_box_score(db, game.id), names)
     return Response(
         content=content,
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="box-score-{game_id}.csv"'},
     )
 
@@ -282,6 +282,6 @@ def get_game_shot_zones_csv(
     content = shot_zones_csv(build_game_shot_zones(db, game_id))
     return Response(
         content=content,
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="shot-zones-{game_id}.csv"'},
     )

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
 
-import { downloadExport } from "../../api/exports";
+import { ExportButton } from "../../components/ExportButton";
 import { fetchTeamPlayers } from "../../api/players";
 import {
   fetchSeasonStats,
@@ -66,12 +66,16 @@ export function SeasonStatsScreen({ teamId, onBack }: SeasonStatsScreenProps) {
           <button className="header-btn" onClick={onBack}>Retour</button>
           <h1>{teamQuery.data?.name ?? "Stats de la saison"}</h1>
           <div className="data-export-actions">
-            <button className="header-btn" onClick={() => void downloadExport(`/teams/${teamId}/season-stats.csv`, `season-${teamId}.csv`)}>
-              CSV
-            </button>
-            <button className="header-btn" onClick={() => void downloadExport(`/teams/${teamId}/season-stats.pdf`, `season-${teamId}.pdf`)}>
-              PDF
-            </button>
+            <ExportButton
+              kind="csv"
+              path={`/teams/${teamId}/season-stats.csv`}
+              filename={`season-${teamId}.csv`}
+            />
+            <ExportButton
+              kind="pdf"
+              path={`/teams/${teamId}/season-stats.pdf`}
+              filename={`season-${teamId}.pdf`}
+            />
           </div>
         </header>
 

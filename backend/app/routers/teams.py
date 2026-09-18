@@ -132,7 +132,7 @@ def get_season_stats_csv(
     content = season_stats_csv(build_season_report(db, team.id), names)
     return Response(
         content=content,
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="season-stats-{team_id}.csv"'},
     )
 
@@ -173,6 +173,6 @@ def get_team_shot_zones_csv(
     content = shot_zones_csv(build_team_shot_zones(db, team_id))
     return Response(
         content=content,
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="shot-zones-{team_id}.csv"'},
     )
