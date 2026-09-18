@@ -210,7 +210,7 @@ function TeamFormModal({
           Nom de l'équipe
           <input value={name} onChange={(event) => setName(event.target.value)} required />
         </label>
-        <button type="submit">Enregistrer</button>
+        <button type="submit" className="header-btn auth-submit">Enregistrer</button>
       </form>
     </Modal>
   );
@@ -282,15 +282,17 @@ function PlayersPanel({ teamId, canWrite }: { teamId: string; canWrite: boolean 
               <td>{player.position}</td>
               {canWrite && (
                 <td>
-                  <button
-                    onClick={() => {
-                      setEditingPlayer(player);
-                      setModalOpen(true);
-                    }}
-                  >
-                    Modifier
-                  </button>
-                  <button onClick={() => void handleDelete(player)}>Supprimer</button>
+                  <span className="management-item-actions">
+                    <button
+                      onClick={() => {
+                        setEditingPlayer(player);
+                        setModalOpen(true);
+                      }}
+                    >
+                      Modifier
+                    </button>
+                    <button onClick={() => void handleDelete(player)}>Supprimer</button>
+                  </span>
                 </td>
               )}
             </tr>
@@ -384,7 +386,7 @@ function PlayerFormModal({
             ))}
           </select>
         </label>
-        <button type="submit">Enregistrer</button>
+        <button type="submit" className="header-btn auth-submit">Enregistrer</button>
       </form>
     </Modal>
   );
@@ -415,12 +417,6 @@ function GamesPanel({
   const filtered = games.filter((game) =>
     game.opponent_name.toLowerCase().includes(search.toLowerCase()),
   );
-
-  function copySpectatorLink(game: GameApiRead) {
-    const url = `${window.location.origin}${window.location.pathname}?live=${game.share_token}`;
-    void navigator.clipboard?.writeText(url);
-    alert(`Lien spectateur copié :\n${url}`);
-  }
 
   return (
     <div>
@@ -458,9 +454,7 @@ function GamesPanel({
                 <button className="header-btn" onClick={() => onOpenGame(game.id)}>
                   Ouvrir la saisie
                 </button>
-                <button className="header-btn" onClick={() => copySpectatorLink(game)}>
-                  Lien spectateur
-                </button>
+                <CopySpectatorLinkButton game={game} />
               </td>
             </tr>
           ))}
@@ -484,6 +478,42 @@ function GamesPanel({
         />
       )}
     </div>
+  );
+}
+
+function CopySpectatorLinkButton({ game }: { game: GameApiRead }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    const url = `${window.location.origin}${window.location.pathname}?live=${game.share_token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard unavailable (e.g. insecure context): nothing else to fall back to here.
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="icon-btn"
+      onClick={() => void handleCopy()}
+      title="Copier le lien spectateur"
+      aria-label="Copier le lien spectateur"
+    >
+      {copied ? (
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+          <rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      )}
+    </button>
   );
 }
 
@@ -530,7 +560,7 @@ function GameFormModal({
           Libellé (optionnel)
           <input value={label} onChange={(event) => setLabel(event.target.value)} />
         </label>
-        <button type="submit">Créer le match</button>
+        <button type="submit" className="header-btn auth-submit">Créer le match</button>
       </form>
     </Modal>
   );
