@@ -120,3 +120,49 @@ describe("computeBoxScore", () => {
     expect(() => computeBoxScore(events)).toThrow(/missing playerId/);
   });
 });
+
+describe("playing time with a live clock", () => {
+  const starters = ["a", "b"];
+
+  it("credits whole periods once the game is over", () => {
+    const events: GameEventRecord[] = [
+      { actionType: ActionType.STEAL, actor: "home_player", playerId: "a", period: 1, seq: 1, gameClock: "09:00" },
+    ];
+    const row = computeBoxScore(events, starters).players.get("a")!;
+    expect(row.minutesS).toBe(600);
+  });
+
+  it("counts only the elapsed time while the game is running", () => {
+    const events: GameEventRecord[] = [
+      { actionType: ActionType.STEAL, actor: "home_player", playerId: "a", period: 1, seq: 1, gameClock: "09:00" },
+    ];
+    const row = computeBoxScore(events, starters, { period: 1, remainingS: 8 * 60 }).players.get("a")!;
+    expect(row.minutesS).toBe(120);
+  });
+
+  it("credits the starting five nothing before the clock has moved", () => {
+    const boxScore = computeBoxScore([], starters, { period: 1, remainingS: 600 });
+    expect(boxScore.players.get("a")!.minutesS).toBe(0);
+    expect(boxScore.players.get("b")!.minutesS).toBe(0);
+  });
+
+  it("splits the elapsed time across a substitution", () => {
+    const events: GameEventRecord[] = [
+      { actionType: ActionType.SUB_OUT, actor: "home_player", playerId: "a", period: 1, seq: 1, gameClock: "07:00" },
+      { actionType: ActionType.SUB_IN, actor: "home_player", playerId: "c", period: 1, seq: 2, gameClock: "07:00" },
+    ];
+    const boxScore = computeBoxScore(events, starters, { period: 1, remainingS: 5 * 60 });
+    expect(boxScore.players.get("a")!.minutesS).toBe(180);
+    expect(boxScore.players.get("c")!.minutesS).toBe(120);
+    // Never subbed out, so she has been on the floor the whole time.
+    expect(boxScore.players.get("b")!.minutesS).toBe(300);
+  });
+
+  it("closes finished periods when the live clock has moved on to the next one", () => {
+    const events: GameEventRecord[] = [
+      { actionType: ActionType.STEAL, actor: "home_player", playerId: "a", period: 1, seq: 1, gameClock: "09:00" },
+    ];
+    const row = computeBoxScore(events, starters, { period: 2, remainingS: 9 * 60 }).players.get("a")!;
+    expect(row.minutesS).toBe(600 + 60);
+  });
+});

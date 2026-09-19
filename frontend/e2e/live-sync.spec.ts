@@ -5,14 +5,15 @@ const API = "http://127.0.0.1:8000";
 interface SeededGame {
   gameId: string;
   playerLastName: string;
+  benchLastName?: string;
   token: string;
 }
 
-async function seedGame(request: APIRequestContext): Promise<SeededGame> {
+async function seedGame(request: APIRequestContext, benchLastName?: string): Promise<SeededGame> {
   const registerResponse = await request.post(`${API}/auth/register`, {
     data: {
       org_name: "E2E Club",
-      email: `e2e-${Date.now()}@example.com`,
+      email: `e2e-${Date.now()}-${Math.random().toString(16).slice(2)}@example.com`,
       display_name: "E2E Coach",
     },
   });
@@ -34,6 +35,21 @@ async function seedGame(request: APIRequestContext): Promise<SeededGame> {
       },
     })
   ).json();
+  let benchPlayer: { id: string; last_name: string } | undefined;
+  if (benchLastName) {
+    benchPlayer = await (
+      await request.post(`${API}/players`, {
+        headers,
+        data: {
+          team_id: team.id,
+          first_name: "Ann",
+          last_name: benchLastName,
+          jersey_number: 12,
+          position: "SG",
+        },
+      })
+    ).json();
+  }
   const game = await (
     await request.post(`${API}/games`, {
       headers,
@@ -45,12 +61,31 @@ async function seedGame(request: APIRequestContext): Promise<SeededGame> {
       },
     })
   ).json();
-  const roster = await request.post(`${API}/games/${game.id}/roster`, {
-    headers,
-    data: { player_id: player.id, is_starter: true, dnp: false },
-  });
-  expect(roster.ok()).toBeTruthy();
-  return { gameId: game.id, playerLastName: player.last_name, token };
+  // Creating a game already puts the whole team on the roster, starting the
+  // first five, so seeding only reads the sheet back instead of building it.
+  const rosterResponse = await request.get(`${API}/games/${game.id}/roster`, { headers });
+  expect(rosterResponse.ok()).toBeTruthy();
+  const roster: { id: string; player_id: string; is_starter: boolean }[] = await rosterResponse.json();
+  expect(roster).toEqual(
+    expect.arrayContaining([expect.objectContaining({ player_id: player.id, is_starter: true })]),
+  );
+
+  if (benchPlayer) {
+    // A two-player team would otherwise start both, leaving nobody to sub in.
+    const benchEntry = roster.find((entry) => entry.player_id === benchPlayer!.id)!;
+    const demoted = await request.put(`${API}/games/${game.id}/roster/${benchEntry.id}`, {
+      headers,
+      data: { is_starter: false, dnp: false },
+    });
+    expect(demoted.ok()).toBeTruthy();
+  }
+
+  return {
+    gameId: game.id,
+    playerLastName: player.last_name,
+    benchLastName: benchPlayer?.last_name,
+    token,
+  };
 }
 
 async function recordStat(
@@ -98,7 +133,9 @@ test("offline recording survives reload and syncs once", async ({ page, request 
 
   await restoreApi(page);
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
-  await expect(page.getByTestId("sync-badge")).toHaveText("Synchronisé", { timeout: 20_000 });
+  // The badge only surfaces something worth knowing (pending/offline), so a
+  // fully drained queue is expressed by the badge disappearing entirely.
+  await expect(page.getByTestId("sync-badge")).toHaveCount(0, { timeout: 20_000 });
 
   const headers = { Authorization: `Bearer ${token}` };
   const events = await (await request.get(`${API}/games/${gameId}/events`, { headers })).json();
@@ -129,4 +166,60 @@ test("offline recording survives reload and syncs once", async ({ page, request 
     await request.get(`${API}/games/${gameId}/events`, { headers })
   ).json();
   expect(afterReplay).toHaveLength(2);
+});
+
+test("substitutions entered offline give the server the right playing time", async ({
+  page,
+  request,
+}) => {
+  const { gameId, playerLastName, benchLastName, token } = await seedGame(request, "Bench");
+
+  await page.addInitScript((storedToken) => {
+    localStorage.setItem("basketstats_token", storedToken);
+  }, token);
+
+  await page.goto(`/?game=${gameId}`);
+  await expect(page.getByRole("heading", { name: "E2E Game" })).toBeVisible();
+  await expect(page.getByText("Sur le terrain : 1/5")).toBeVisible();
+
+  await cutApi(page);
+
+  // Swap the starter out for the bench player at the very top of Q1, so the
+  // expected split is exact and owes nothing to real elapsed time: the starter
+  // never plays a second, the substitute is on the floor from there on.
+  await page.getByRole("button", { name: "Changement", exact: true }).click();
+  await page.getByRole("button", { name: new RegExp(playerLastName) }).click();
+  await page.getByRole("button", { name: new RegExp(benchLastName!) }).click();
+  await expect(page.getByRole("button", { name: new RegExp(benchLastName!) })).toHaveAttribute(
+    "title",
+    "Sur le terrain",
+  );
+
+  // Move the journal on to Q2 so Q1 is closed out and its minutes are credited.
+  await page.getByRole("button", { name: "Terminer le changement" }).click();
+  await page.getByRole("button", { name: "Q2", exact: true }).click();
+  await recordStat(page, benchLastName!, "Interception", "Interception");
+
+  await page.reload();
+  await expect(page.getByText(new RegExp(`${benchLastName} - Interception`))).toBeVisible();
+
+  await restoreApi(page);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(page.getByTestId("sync-badge")).toHaveCount(0, { timeout: 20_000 });
+
+  const headers = { Authorization: `Bearer ${token}` };
+  const events = await (await request.get(`${API}/games/${gameId}/events`, { headers })).json();
+  expect(events.map((event: { action_type: string }) => event.action_type)).toEqual([
+    "SUB_OUT",
+    "SUB_IN",
+    "STEAL",
+  ]);
+
+  // Subbed out at 10:00 in Q1, the starter played nothing; the substitute was
+  // on the floor for the whole of Q1 and Q2, so two full 10-minute quarters.
+  const boxScore = await (await request.get(`${API}/games/${gameId}/box-score`, { headers })).json();
+  const minutes = boxScore.players
+    .map((row: { minutes: number }) => row.minutes)
+    .sort((a: number, b: number) => a - b);
+  expect(minutes).toEqual([0, 20]);
 });

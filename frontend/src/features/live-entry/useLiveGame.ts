@@ -15,6 +15,7 @@ interface RecordEventInput {
   actionType: ActionType;
   playerId: string | null;
   period: number;
+  gameClock?: string | null;
   x?: number | null;
   y?: number | null;
 }
@@ -99,15 +100,20 @@ export function useLiveGame(gameId: string) {
     };
   }, [gameId]);
 
-  const recordEvent = useCallback(async (input: RecordEventInput) => {
+  /** Appends events to the local journal under a single lock, so a group that
+   * only makes sense together (a SUB_OUT/SUB_IN pair) can never be half
+   * written — a dangling SUB_OUT would corrupt the derived lineup, and with it
+   * every player's minutes and +/-. */
+  const recordEvents = useCallback(async (inputs: RecordEventInput[]) => {
+    if (inputs.length === 0) return;
     await withRecordLock(gameId, async () => {
-      const seq = await nextSeq(gameId);
-      const event: LocalGameEvent = {
+      const firstSeq = await nextSeq(gameId);
+      const rows: LocalGameEvent[] = inputs.map((input, index) => ({
         id: generateEventId(),
         gameId,
-        seq,
+        seq: firstSeq + index,
         period: input.period,
-        gameClock: null,
+        gameClock: input.gameClock ?? null,
         wallTime: nowIso(),
         actor: input.actor,
         playerId: input.playerId,
@@ -118,11 +124,18 @@ export function useLiveGame(gameId: string) {
         voided: false,
         syncedInsert: false,
         pendingVoidSync: false,
-      };
-      await db.gameEvents.add(event);
+      }));
+      await db.gameEvents.bulkAdd(rows);
     });
     syncLoopRef.current?.kick();
   }, [gameId]);
+
+  const recordEvent = useCallback(
+    async (input: RecordEventInput) => {
+      await recordEvents([input]);
+    },
+    [recordEvents],
+  );
 
   const voidEvent = useCallback(async (eventId: string) => {
     const event = await db.gameEvents.get(eventId);
@@ -134,12 +147,16 @@ export function useLiveGame(gameId: string) {
     syncLoopRef.current?.kick();
   }, []);
 
+  /** Reads the journal back from IndexedDB rather than trusting the rendered
+   * snapshot: undo has to hit the genuinely last event even if a write from the
+   * tap before it only just landed. */
   const undoLast = useCallback(async () => {
-    const last = [...events].filter((event) => !event.voided).sort((a, b) => b.seq - a.seq)[0];
+    const stored = await db.gameEvents.where("gameId").equals(gameId).toArray();
+    const last = stored.filter((event) => !event.voided).sort((a, b) => b.seq - a.seq)[0];
     if (last) {
       await voidEvent(last.id);
     }
-  }, [events, voidEvent]);
+  }, [gameId, voidEvent]);
 
   return {
     game,
@@ -149,6 +166,7 @@ export function useLiveGame(gameId: string) {
     loadError,
     syncStatus,
     recordEvent,
+    recordEvents,
     voidEvent,
     undoLast,
   };

@@ -150,6 +150,20 @@ body {
   border-bottom-width: 1px;
 }
 
+.header-btn.active {
+  background: linear-gradient(180deg, #fb923c, #f97316);
+  color: #ffffff;
+}
+
+.header-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.header-btn:disabled:hover {
+  background: linear-gradient(180deg, #3f4f66, #334155);
+}
+
 .live-game-actions {
   display: flex;
   gap: 0.5rem;
@@ -203,6 +217,66 @@ body {
 
 .live-game-bottom-row .player-list {
   flex: 1;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.player-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.game-clock {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.game-clock-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f8fafc;
+  background: #0a0e17;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  min-width: 3.4rem;
+  text-align: center;
+}
+
+.sub-mode-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #fdba74;
+  flex-shrink: 0;
+}
+
+.lineup-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lineup-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.stats-panel tr.on-court-row td:first-child {
+  box-shadow: inset 2px 0 0 #22c55e;
+  font-weight: 700;
 }
 
 .side-actions {
@@ -681,6 +755,37 @@ body {
 .player-list-item.selected {
   background: linear-gradient(180deg, #fb923c, #f97316);
   color: #ffffff;
+}
+
+/* The player grid doubles as the lineup display: the five on the floor carry a
+   green ring so the current five is readable at a glance, without dimming the
+   bench (a gym is bright and every card has to stay legible). */
+.player-list-item.on-court {
+  background: linear-gradient(180deg, #46628a, #38506e);
+  box-shadow:
+    inset 0 0 0 2px #22c55e,
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* Substitution mode reuses the made/missed colour language of the action
+   buttons: red is the player leaving, green the one coming in. */
+.player-list-item.sub-out {
+  background: linear-gradient(180deg, #f87171, #ef4444);
+  box-shadow:
+    inset 0 0 0 2px #fecaca,
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+}
+
+.player-list-item.sub-in {
+  background: linear-gradient(180deg, #4ade80, #22c55e);
+  box-shadow:
+    inset 0 0 0 2px #dcfce7,
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  color: #052e16;
 }
 
 .player-list-item .jersey {

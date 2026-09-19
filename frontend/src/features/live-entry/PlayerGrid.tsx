@@ -5,9 +5,22 @@ interface PlayerGridProps {
   roster: CachedRosterEntry[];
   selectedPlayerId: string | null;
   onSelect: (playerId: string) => void;
+  onCourtIds: Set<string>;
+  subMode?: boolean;
+  subOutId?: string | null;
+  subInId?: string | null;
 }
 
-export function PlayerGrid({ players, roster, selectedPlayerId, onSelect }: PlayerGridProps) {
+export function PlayerGrid({
+  players,
+  roster,
+  selectedPlayerId,
+  onSelect,
+  onCourtIds,
+  subMode = false,
+  subOutId = null,
+  subInId = null,
+}: PlayerGridProps) {
   const activeRoster = roster.filter((entry) => !entry.dnp);
   const playersById = new Map(players.map((player) => [player.id, player]));
 
@@ -16,11 +29,21 @@ export function PlayerGrid({ players, roster, selectedPlayerId, onSelect }: Play
       {activeRoster.map((entry) => {
         const player = playersById.get(entry.playerId);
         if (!player) return null;
+        const onCourt = onCourtIds.has(entry.playerId);
+        const classes = ["player-list-item"];
+        if (onCourt) classes.push("on-court");
+        if (subMode) {
+          if (entry.playerId === subOutId) classes.push("sub-out");
+          if (entry.playerId === subInId) classes.push("sub-in");
+        } else if (selectedPlayerId === entry.playerId) {
+          classes.push("selected");
+        }
         return (
           <button
             key={entry.playerId}
-            className={selectedPlayerId === entry.playerId ? "player-list-item selected" : "player-list-item"}
+            className={classes.join(" ")}
             onClick={() => onSelect(entry.playerId)}
+            title={onCourt ? "Sur le terrain" : "Sur le banc"}
           >
             <span className="jersey">{player.jerseyNumber}</span>
             <span className="name">

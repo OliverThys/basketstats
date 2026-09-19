@@ -165,9 +165,19 @@ const OPPONENT_POINTS_BY_ACTION: Partial<Record<ActionType, number>> = {
 
 const OPPONENT_IGNORED_ACTIONS = new Set<ActionType>([ActionType.OPP_FOUL]);
 
+/** Where the game clock currently stands, for a box score read mid-game.
+ * Without it, playing time assumes every period in the journal was played out
+ * to the buzzer — correct for a finished game, but it would credit a full 10
+ * minutes to the starting five on the opening possession. */
+export interface LiveClock {
+  period: number;
+  remainingS: number;
+}
+
 export function computeBoxScore(
   events: Iterable<GameEventRecord>,
   starterIds: Iterable<string> = [],
+  liveClock?: LiveClock,
 ): GameBoxScore {
   const players = new Map<string, PlayerBoxScore>();
   let homeScore = 0;
@@ -251,7 +261,7 @@ export function computeBoxScore(
     totals.fpf += row.fpf;
   }
 
-  applyLineupStats(playerRow, records.filter((event) => !event.voided), starterIds);
+  applyLineupStats(playerRow, records.filter((event) => !event.voided), starterIds, liveClock);
 
   return { players, totals, homeScore, opponentScore };
 }
@@ -270,10 +280,20 @@ export function parseGameClock(clock: string | null | undefined): number | null 
   return minutes * 60 + seconds;
 }
 
+/** Seconds -> "MM:SS", the inverse of parseGameClock. Used both for the game
+ * clock stamped onto events and for displaying derived playing time. */
+export function formatClock(totalSeconds: number): string {
+  const clamped = Math.max(0, Math.round(totalSeconds));
+  const minutes = Math.floor(clamped / 60);
+  const seconds = clamped % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 function applyLineupStats(
   playerRow: (playerId: string) => PlayerBoxScore,
   events: GameEventRecord[],
   starterIds: Iterable<string>,
+  liveClock?: LiveClock,
 ): void {
   const ordered = [...events].sort((a, b) => (a.period ?? 1) - (b.period ?? 1) || (a.seq ?? 0) - (b.seq ?? 0));
   const onCourt = new Set(starterIds);
@@ -336,6 +356,18 @@ function applyLineupStats(
     if (delta) {
       for (const playerId of onCourt) playerRow(playerId).plusMinus += delta;
     }
+  }
+
+  if (liveClock) {
+    // Mid-game: the rest of the period hasn't been played yet, so stop the
+    // count where the clock actually stands rather than at the buzzer.
+    if (currentPeriod !== liveClock.period) {
+      if (currentPeriod != null) closePeriod();
+      remaining = periodLengthS(liveClock.period);
+      for (const playerId of onCourt) checkIn.set(playerId, remaining);
+    }
+    tickClock(liveClock.remainingS);
+    return;
   }
 
   closePeriod();

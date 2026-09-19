@@ -131,6 +131,18 @@ n'importe quel ordre), le shot chart inline pour les tirs, le play-by-play
 éditable avec undo, le panneau de stats live et l'indicateur de synchronisation
 (Synced / Sync pending / Offline).
 
+L'écran de saisie gère aussi l'**horloge de match** et le **temps de jeu** :
+l'horloge décompte le quart-temps (10 min, 5 min en prolongation), survit à un
+rechargement en plein match (persistée avec l'heure de démarrage, donc elle
+rattrape le temps réellement écoulé) et estampille chaque event avec le
+`game_clock`. Le bouton "Changement" enregistre un remplacement comme une paire
+`SUB_OUT`/`SUB_IN` écrite d'un seul bloc ; le cinq sur le terrain n'est jamais
+stocké, il est redérivé du journal (`frontend/src/domain/lineup.ts`), si bien
+qu'annuler un changement remet automatiquement le bon cinq. Les joueuses sur le
+terrain sont cerclées de vert dans la grille, et la colonne MIN du panneau de
+droite compte le temps écoulé jusqu'à l'horloge courante (et non le quart
+entier), pour pouvoir répartir les minutes en direct.
+
 Le **box score** (bouton dans l'en-tête live) affiche toutes les colonnes, la
 ligne Totals avec %, plus MIN / +/- / eFG% / TS%, les zones de tir, et des
 exports CSV/PDF. Les **stats de saison** s'ouvrent depuis le bouton Season
