@@ -1499,7 +1499,16 @@ body {
   gap: 0.35rem;
 }
 
-.management-item-actions button {
+/* Row actions mixing a primary button with small secondary ones: unlike
+   .management-item-actions, this must not restyle the .header-btn it wraps. */
+.management-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.management-item-actions button,
+.management-mini-btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
   font-weight: 700;

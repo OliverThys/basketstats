@@ -62,6 +62,11 @@ def test_games_are_scoped_to_the_caller_organization(client: TestClient) -> None
     )
     assert hijack_attempt.status_code == 404
 
+    # Nor can another org delete it: 404, and the game is still there afterwards.
+    cross_delete = client.delete(f"/games/{game['id']}", headers=other_headers)
+    assert cross_delete.status_code == 404
+    assert client.get(f"/games/{game['id']}").status_code == 200
+
 
 def test_viewer_role_is_read_only(client: TestClient) -> None:
     invite = client.post(

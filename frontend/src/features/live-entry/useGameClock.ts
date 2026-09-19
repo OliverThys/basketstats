@@ -30,6 +30,15 @@ function writeStored(gameId: string, clock: StoredClock): void {
   }
 }
 
+/** Forget a game's persisted clock, so a deleted game leaves nothing behind. */
+export function clearStoredClock(gameId: string): void {
+  try {
+    localStorage.removeItem(storageKey(gameId));
+  } catch {
+    // Storage unavailable: nothing was persisted in the first place.
+  }
+}
+
 function freshClock(period: number): StoredClock {
   return { period, remainingS: periodLengthS(period), running: false, since: null };
 }

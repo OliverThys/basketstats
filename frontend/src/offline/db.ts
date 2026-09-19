@@ -69,3 +69,15 @@ class BasketStatsDb extends Dexie {
 }
 
 export const db = new BasketStatsDb();
+
+/** Drop every local trace of a game once the server has accepted its deletion:
+ * the journal, the cached game and its roster. Events that were never pushed go
+ * too — without this the sync queue would retry them forever against a game
+ * the server no longer knows about. */
+export async function purgeLocalGame(gameId: string): Promise<void> {
+  await db.transaction("rw", db.gameEvents, db.games, db.roster, async () => {
+    await db.gameEvents.where("gameId").equals(gameId).delete();
+    await db.roster.where("gameId").equals(gameId).delete();
+    await db.games.delete(gameId);
+  });
+}

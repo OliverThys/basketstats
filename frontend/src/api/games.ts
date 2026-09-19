@@ -76,6 +76,10 @@ export async function createGame(
   });
 }
 
+export async function deleteGame(gameId: string): Promise<void> {
+  await apiFetch<void>(`/games/${gameId}`, { method: "DELETE" });
+}
+
 export async function addRosterEntry(
   gameId: string,
   playerId: string,

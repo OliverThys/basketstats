@@ -103,6 +103,14 @@ de gestion (`ManagementScreen`) : création/édition/suppression d'équipes,
 recherche et gestion des joueurs par équipe, création de matchs avec
 recherche par adversaire.
 
+Un match peut aussi être **supprimé** depuis l'onglet Matchs. La suppression
+part d'abord au serveur (`DELETE /games/{id}`, qui cascade sur le roster et le
+journal d'events) et n'efface les traces locales qu'ensuite : events IndexedDB,
+roster, match en cache et horloge persistée. Si le serveur est injoignable, rien
+n'est purgé en local — sinon des events non encore poussés disparaîtraient et le
+match réapparaîtrait à la prochaine hydratation. Les joueuses de l'équipe ne
+sont jamais touchées.
+
 ## Backup / restore
 
 - `GET /organizations/me/backup` (réservé à l'`owner`) exporte tout le club

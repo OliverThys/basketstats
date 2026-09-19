@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { createGame, fetchTeamGames } from "../../api/games";
+import { createGame, deleteGame, fetchTeamGames } from "../../api/games";
 import type { GameApiRead } from "../../api/games";
 import {
   createPlayer,
@@ -12,7 +12,9 @@ import type { PlayerApiRead } from "../../api/players";
 import { createTeam, deleteTeam, fetchTeams, updateTeam } from "../../api/teams";
 import type { TeamApi } from "../../api/teams";
 import { useAuth } from "../../auth/AuthContext";
+import { purgeLocalGame } from "../../offline/db";
 import { Modal } from "../live-entry/Modal";
+import { clearStoredClock } from "../live-entry/useGameClock";
 
 const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
 
@@ -414,6 +416,29 @@ function GamesPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamId]);
 
+  async function handleDelete(game: GameApiRead) {
+    const date = new Date(game.game_date).toLocaleDateString("fr-FR");
+    if (
+      !confirm(
+        `Supprimer le match du ${date} contre ${game.opponent_name} ?\n\n` +
+          "Toutes les actions saisies seront définitivement perdues.",
+      )
+    ) {
+      return;
+    }
+    try {
+      await deleteGame(game.id);
+    } catch {
+      // Deleting needs the server: a purely local purge would resurrect the
+      // game at the next hydration, and unpushed events would be lost silently.
+      alert("Suppression impossible : le serveur est injoignable. Réessayez une fois en ligne.");
+      return;
+    }
+    await purgeLocalGame(game.id);
+    clearStoredClock(game.id);
+    await reload();
+  }
+
   const filtered = games.filter((game) =>
     game.opponent_name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -451,9 +476,16 @@ function GamesPanel({
               </td>
               <td>{game.status}</td>
               <td>
-                <button className="header-btn" onClick={() => onOpenGame(game.id)}>
-                  Ouvrir la saisie
-                </button>
+                <span className="management-row-actions">
+                  <button className="header-btn" onClick={() => onOpenGame(game.id)}>
+                    Ouvrir la saisie
+                  </button>
+                  {canWrite && (
+                    <button className="management-mini-btn" onClick={() => void handleDelete(game)}>
+                      Supprimer
+                    </button>
+                  )}
+                </span>
               </td>
             </tr>
           ))}

@@ -61,6 +61,42 @@ def test_team_player_game_crud_flow(client: TestClient) -> None:
     assert len(games_for_org) == 1
 
 
+def test_deleting_a_game_removes_its_roster_and_events(client: TestClient) -> None:
+    team_id, player_id = _setup_team_player(client)
+    game = client.post(
+        "/games",
+        json={
+            "home_team_id": team_id,
+            "opponent_name": "Rival Club",
+            "game_date": "2026-01-15T18:00:00Z",
+        },
+    ).json()
+    client.post(
+        f"/games/{game['id']}/events/batch",
+        json={
+            "events": [
+                {
+                    "id": "44444444-4444-4444-4444-444444444444",
+                    "seq": 1,
+                    "period": 1,
+                    "actor": "home_player",
+                    "player_id": player_id,
+                    "action_type": "FG2_MADE",
+                }
+            ]
+        },
+    )
+
+    assert client.delete(f"/games/{game['id']}").status_code == 204
+
+    # The game and everything hanging off it are gone, but the team's players
+    # survive: deleting a game must not touch the roster of the club itself.
+    assert client.get(f"/games/{game['id']}").status_code == 404
+    assert client.get("/games").json() == []
+    assert client.get(f"/teams/{team_id}/games").json() == []
+    assert len(client.get(f"/players?team_id={team_id}").json()) == 1
+
+
 def test_event_batch_ingestion_is_idempotent(client: TestClient) -> None:
     team_id, player_id = _setup_team_player(client)
     game = client.post(
