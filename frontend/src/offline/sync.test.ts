@@ -78,6 +78,23 @@ describe("syncGame", () => {
     expect((await db.gameEvents.get("a"))?.pendingVoidSync).toBe(false);
   });
 
+  it("keeps a void that lands while the insert is still in flight", async () => {
+    await db.gameEvents.add(event({ id: "a" }));
+    vi.mocked(pushEventsBatch).mockImplementation(async () => {
+      // Undo mid-flight, exactly like a coach correcting a mis-tap.
+      await db.gameEvents.update("a", { voided: true, pendingVoidSync: false });
+      return { inserted: 1, skipped_existing: 0 };
+    });
+
+    await syncGame("g1");
+
+    const stored = await db.gameEvents.get("a");
+    expect(stored?.voided).toBe(true);
+    expect(stored?.syncedInsert).toBe(true);
+    // The server took it as live, so the void still owes it a DELETE.
+    expect(stored?.pendingVoidSync).toBe(true);
+  });
+
   it("syncAllPending flushes every game that has work", async () => {
     await db.gameEvents.bulkAdd([event({ id: "a", gameId: "g1" }), event({ id: "b", gameId: "g2", seq: 1 })]);
     await syncAllPending();

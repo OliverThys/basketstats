@@ -34,7 +34,21 @@ async function syncGameOnce(gameId: string): Promise<void> {
   const toInsert = events.filter((event) => !event.syncedInsert);
   if (toInsert.length > 0) {
     await pushEventsBatch(gameId, toInsert);
-    await db.gameEvents.bulkPut(toInsert.map((event) => ({ ...event, syncedInsert: true })));
+    // Write back field by field from the *current* row rather than putting the
+    // pre-push snapshot back: undoing an action right after recording it is
+    // routine, and a whole-record put would silently resurrect it.
+    await db.transaction("rw", db.gameEvents, async () => {
+      const current = await db.gameEvents.bulkGet(toInsert.map((event) => event.id));
+      for (const event of current) {
+        if (!event) continue;
+        await db.gameEvents.update(event.id, {
+          syncedInsert: true,
+          // Voided while the insert was in flight: the server accepted it as
+          // live, so the void still has to be pushed.
+          pendingVoidSync: event.voided ? true : event.pendingVoidSync,
+        });
+      }
+    });
   }
 
   const toVoid = events.filter((event) => event.syncedInsert && event.pendingVoidSync);
