@@ -21,8 +21,15 @@ export function PlayerGrid({
   subOutId = null,
   subInId = null,
 }: PlayerGridProps) {
-  const activeRoster = roster.filter((entry) => !entry.dnp);
   const playersById = new Map(players.map((player) => [player.id, player]));
+  const activeRoster = roster
+    .filter((entry) => !entry.dnp)
+    .slice()
+    .sort((a, b) => {
+      const jerseyA = playersById.get(a.playerId)?.jerseyNumber ?? Number.POSITIVE_INFINITY;
+      const jerseyB = playersById.get(b.playerId)?.jerseyNumber ?? Number.POSITIVE_INFINITY;
+      return jerseyA - jerseyB;
+    });
 
   return (
     <div className="player-list">
