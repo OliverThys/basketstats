@@ -225,6 +225,53 @@ def _pdf_header_footer(title: str, subtitle: str | None):
     return _draw
 
 
+def _with_legend_aside(table, legend, table_width, page_width, styles):
+    """Places a vertical abbreviation legend to the right of the main table."""
+    gap = 14
+    legend_width = page_width - table_width - gap
+    abbr_style = ParagraphStyle(
+        "LegendAbbr", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=7.5, leading=9
+    )
+    text_style = ParagraphStyle(
+        "LegendText", parent=styles["Normal"], textColor=_SLATE, fontSize=7.5, leading=9
+    )
+    rows = [[Paragraph("Légende", abbr_style), ""]]
+    rows += [
+        [Paragraph(abbr, abbr_style), Paragraph(meaning, text_style)] for abbr, meaning in legend
+    ]
+    legend_table = Table(rows, colWidths=[44, legend_width - 44])
+    legend_table.setStyle(
+        TableStyle(
+            [
+                ("SPAN", (0, 0), (-1, 0)),
+                ("BACKGROUND", (0, 0), (-1, 0), _ROW_ALT),
+                ("LINEBELOW", (0, 0), (-1, 0), 1.2, _ORANGE),
+                ("BOX", (0, 0), (-1, -1), 0.4, colors.HexColor("#cfe5da")),
+                ("LINEBELOW", (0, 1), (-1, -2), 0.25, colors.HexColor("#cfe5da")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+            ]
+        )
+    )
+    outer = Table([[table, legend_table]], colWidths=[table_width + gap, legend_width])
+    outer.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (0, 0), gap),
+                ("RIGHTPADDING", (1, 0), (1, 0), 0),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+            ]
+        )
+    )
+    return outer
+
+
 def _pdf_table(
     title: str,
     headers: list[str],
@@ -264,7 +311,10 @@ def _pdf_table(
 
     name_col = headers.index("Player")
     data = [headers, *rows]
-    table = Table(data, repeatRows=1, hAlign="LEFT")
+    col_widths = None
+    if legend:
+        col_widths = [28 if h == "N°" else 118 if h == "Player" else 34 for h in headers]
+    table = Table(data, colWidths=col_widths, repeatRows=1, hAlign="LEFT")
 
     style_commands = [
         ("BACKGROUND", (0, 0), (-1, 0), _PANEL),
@@ -297,18 +347,10 @@ def _pdf_table(
         story.append(Paragraph(subtitle, subtitle_style))
     else:
         story.append(Spacer(1, 12))
-    story.append(table)
     if legend:
-        legend_style = ParagraphStyle(
-            "ExportLegend",
-            parent=styles["Normal"],
-            textColor=_MUTED,
-            fontSize=7.5,
-            leading=11,
-            spaceBefore=10,
-        )
-        text = " &nbsp;·&nbsp; ".join(f"<b>{abbr}</b> {meaning}" for abbr, meaning in legend)
-        story.append(Paragraph(f"<b>Légende :</b> {text}", legend_style))
+        story.append(_with_legend_aside(table, legend, sum(col_widths), doc.width, styles))
+    else:
+        story.append(table)
 
     draw = _pdf_header_footer(title, subtitle)
     doc.build(story, onFirstPage=draw, onLaterPages=draw)
