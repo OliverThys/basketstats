@@ -145,7 +145,9 @@ def get_season_stats_pdf(
 ) -> Response:
     team = get_org_team(db, team_id, current_user.org_id)
     names = player_display_names(db, team.id)
-    content = season_stats_pdf(build_season_report(db, team.id), names, f"{team.name} season stats")
+    content = season_stats_pdf(
+        build_season_report(db, team.id), names, f"{team.name} · Stats de saison"
+    )
     return Response(
         content=content,
         media_type="application/pdf",

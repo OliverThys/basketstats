@@ -249,7 +249,7 @@ def get_box_score_pdf(
 ) -> Response:
     game = get_org_game(db, game_id, current_user.org_id)
     names = player_display_names(db, game.home_team_id)
-    title = f"JS Cuesmes vs {game.opponent_name}"
+    title = f"vs {game.opponent_name}"
     numbers = player_jersey_numbers(db, game.home_team_id)
     content = box_score_pdf(build_game_box_score(db, game.id), names, title, numbers)
     return Response(
