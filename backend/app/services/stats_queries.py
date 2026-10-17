@@ -19,8 +19,7 @@ def _events_for_game(db: Session, game_id: str) -> list[GameEventRecord]:
 def _roster_for_game(db: Session, game_id: str) -> list[RosterEntry]:
     rows = db.scalars(select(GameRoster).where(GameRoster.game_id == game_id)).all()
     return [
-        RosterEntry(player_id=row.player_id, is_starter=row.is_starter, dnp=row.dnp)
-        for row in rows
+        RosterEntry(player_id=row.player_id, is_starter=row.is_starter, dnp=row.dnp) for row in rows
     ]
 
 
@@ -61,3 +60,8 @@ def build_team_shot_zones(db: Session, team_id: str) -> ShotZoneReport:
 def player_display_names(db: Session, team_id: str) -> dict[str, str]:
     players = db.scalars(select(Player).where(Player.team_id == team_id)).all()
     return {player.id: f"{player.first_name} {player.last_name}" for player in players}
+
+
+def player_jersey_numbers(db: Session, team_id: str) -> dict[str, int]:
+    players = db.scalars(select(Player).where(Player.team_id == team_id)).all()
+    return {player.id: player.jersey_number for player in players}

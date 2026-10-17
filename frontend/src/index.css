@@ -11,8 +11,8 @@ body,
 
 body {
   margin: 0;
-  background: #0f172a;
-  color: #f8fafc;
+  background: #04281f;
+  color: #f4fbf7;
 }
 
 /* Generic app screen frame — every authenticated screen (management,
@@ -27,7 +27,7 @@ body {
   height: 100%;
   min-height: 100vh;
   overflow: auto;
-  background: radial-gradient(ellipse 1200px 800px at 15% 0%, #241621 0%, #05070d 55%);
+  background: radial-gradient(ellipse 1200px 800px at 15% 0%, #0a3d2d 0%, #021510 55%);
   padding: 0.5rem;
   box-sizing: border-box;
 }
@@ -37,17 +37,17 @@ body {
   flex-direction: column;
   width: min(1024px, 100%);
   height: min(768px, 100%);
-  background: #0f172a;
+  background: #04281f;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 0 0 8px #1a1f2b, 0 20px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 8px #06261c, 0 20px 40px rgba(0, 0, 0, 0.6);
   flex-shrink: 0;
 }
 
 .app-screen-loading {
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #a7cdbc;
 }
 
 .app-screen-header {
@@ -56,8 +56,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.25rem;
-  background: #1e293b;
-  border-bottom: 1px solid #334155;
+  background: #00402e;
+  border-bottom: 1px solid #1f6b52;
   flex-shrink: 0;
   gap: 1rem;
 }
@@ -69,7 +69,7 @@ body {
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: linear-gradient(90deg, #f97316, #7c3f56 65%, transparent);
+  background: linear-gradient(90deg, #facb09, #1f6b52 65%, transparent);
 }
 
 .app-screen-header h1 {
@@ -94,7 +94,7 @@ body {
   height: 100%;
   min-height: 100vh;
   overflow: auto;
-  background: #05070d;
+  background: #021510;
   padding: 0.5rem;
   box-sizing: border-box;
 }
@@ -104,10 +104,10 @@ body {
   flex-direction: column;
   width: min(1024px, 100%);
   height: min(768px, 100%);
-  background: #0f172a;
+  background: #04281f;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 0 0 8px #1a1f2b, 0 20px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 8px #06261c, 0 20px 40px rgba(0, 0, 0, 0.6);
   flex-shrink: 0;
 }
 
@@ -116,8 +116,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: #1e293b;
-  border-bottom: 1px solid #334155;
+  background: #00402e;
+  border-bottom: 1px solid #1f6b52;
   flex-shrink: 0;
 }
 
@@ -128,7 +128,7 @@ body {
 }
 
 .header-btn {
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #1b6b50, #1f6b52);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
   color: white;
@@ -142,7 +142,7 @@ body {
 }
 
 .header-btn:hover {
-  background: linear-gradient(180deg, #4c5f7a, #475569);
+  background: linear-gradient(180deg, #1d7a5a, #2f7d63);
 }
 
 .header-btn:active {
@@ -151,8 +151,8 @@ body {
 }
 
 .header-btn.active {
-  background: linear-gradient(180deg, #fb923c, #f97316);
-  color: #ffffff;
+  background: linear-gradient(180deg, #fcd94a, #facb09);
+  color: #04281f;
 }
 
 .header-btn:disabled {
@@ -161,7 +161,7 @@ body {
 }
 
 .header-btn:disabled:hover {
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #1b6b50, #1f6b52);
 }
 
 .live-game-actions {
@@ -177,7 +177,7 @@ body {
   gap: 0.6rem;
   padding: 0.6rem;
   overflow: hidden;
-  background: #0f172a;
+  background: #04281f;
   min-height: 0;
 }
 
@@ -245,9 +245,9 @@ body {
   font-variant-numeric: tabular-nums;
   font-size: 1.1rem;
   font-weight: 800;
-  color: #f8fafc;
-  background: #0a0e17;
-  border: 1px solid #334155;
+  color: #f4fbf7;
+  background: #03180f;
+  border: 1px solid #1f6b52;
   border-radius: 4px;
   padding: 0.2rem 0.5rem;
   min-width: 3.4rem;
@@ -257,7 +257,7 @@ body {
 .sub-mode-hint {
   margin: 0;
   font-size: 0.75rem;
-  color: #fdba74;
+  color: #fde68a;
   flex-shrink: 0;
 }
 
@@ -270,7 +270,7 @@ body {
 .lineup-count {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: #a7cdbc;
   white-space: nowrap;
 }
 
@@ -303,7 +303,7 @@ body {
 }
 
 .shot-chart-mini {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 8px;
   padding: 0.4rem;
 }
@@ -320,7 +320,7 @@ body {
 /* Scoreboard */
 
 .scoreboard {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 10px;
   padding: 0.5rem 0.75rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -443,10 +443,10 @@ body {
 
 .period-tab {
   padding: 0.1rem 0.45rem;
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #1b6b50, #1f6b52);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
-  color: #cbd5e1;
+  color: #cfe5da;
   border-radius: 4px;
   font-weight: 700;
   font-size: 0.65rem;
@@ -455,7 +455,7 @@ body {
 }
 
 .period-tab:hover {
-  background: linear-gradient(180deg, #4c5f7a, #475569);
+  background: linear-gradient(180deg, #1d7a5a, #2f7d63);
 }
 
 .period-tab:active {
@@ -464,9 +464,9 @@ body {
 }
 
 .period-tab.active {
-  background: linear-gradient(180deg, #fb923c, #f97316);
+  background: linear-gradient(180deg, #fcd94a, #facb09);
   border-bottom-color: rgba(0, 0, 0, 0.45);
-  color: #ffffff;
+  color: #04281f;
 }
 
 .scoreboard-step {
@@ -475,7 +475,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.05rem;
-  color: #94a3b8;
+  color: #a7cdbc;
   flex: 0.4;
   min-height: 0;
 }
@@ -494,7 +494,7 @@ body {
   gap: 0.2rem;
   padding: 0.3rem 0.4rem;
   border-radius: 999px;
-  background: #334155;
+  background: #1f6b52;
 }
 
 .foul-dots.bonus {
@@ -506,7 +506,7 @@ body {
   height: 0.5rem;
   border-radius: 50%;
   background: transparent;
-  border: 1.5px solid #94a3b8;
+  border: 1.5px solid #a7cdbc;
   box-sizing: border-box;
 }
 
@@ -515,8 +515,8 @@ body {
 }
 
 .foul-dot.filled {
-  background: #cbd5e1;
-  border-color: #cbd5e1;
+  background: #cfe5da;
+  border-color: #cfe5da;
 }
 
 .foul-dots.bonus .foul-dot.filled {
@@ -532,12 +532,12 @@ body {
 .stats-panel .foul-dot {
   width: 0.4rem;
   height: 0.4rem;
-  border-color: #64748b;
+  border-color: #7fb09d;
 }
 
 .stats-panel .foul-dot.filled {
-  background: #f97316;
-  border-color: #f97316;
+  background: #facb09;
+  border-color: #facb09;
 }
 
 /* Action buttons */
@@ -565,7 +565,7 @@ body {
 }
 
 .action-group {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 8px;
   padding: 0.35rem 0.5rem;
   flex: 1;
@@ -575,7 +575,7 @@ body {
   margin: 0 0 0.3rem;
   font-size: 0.65rem;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: #a7cdbc;
   letter-spacing: 0.05em;
 }
 
@@ -648,14 +648,14 @@ body {
 }
 
 .action-button.selected {
-  outline: 3px solid #f97316;
+  outline: 3px solid #facb09;
   outline-offset: 2px;
 }
 
 /* Opponent buttons */
 
 .opponent-buttons {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 12px;
   padding: 1rem;
   display: flex;
@@ -666,7 +666,7 @@ body {
 .opponent-buttons h4 {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
-  color: #e2e8f0;
+  color: #dff0e8;
 }
 
 .action-grid-2 .opponent-button {
@@ -678,7 +678,7 @@ body {
   flex: 1;
   padding: 0.32rem;
   font-size: 0.68rem;
-  background: linear-gradient(180deg, #64748b, #475569);
+  background: linear-gradient(180deg, #7fb09d, #2f7d63);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
@@ -694,7 +694,7 @@ body {
 }
 
 .opponent-button:hover {
-  background: linear-gradient(180deg, #78859a, #64748b);
+  background: linear-gradient(180deg, #78859a, #7fb09d);
 }
 
 .opponent-button:active {
@@ -706,7 +706,7 @@ body {
 /* Player list */
 
 .player-list {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 10px;
   padding: 0.6rem;
   display: grid;
@@ -719,7 +719,7 @@ body {
 
 .player-list-empty {
   grid-column: 1 / -1;
-  color: #94a3b8;
+  color: #a7cdbc;
   font-size: 0.85rem;
   margin: 0;
 }
@@ -732,7 +732,7 @@ body {
   gap: 0.15rem;
   padding: 0.3rem 0.25rem;
   aspect-ratio: 1 / 1;
-  background: linear-gradient(180deg, #3f4f66, #334155);
+  background: linear-gradient(180deg, #1b6b50, #1f6b52);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
@@ -744,7 +744,7 @@ body {
 }
 
 .player-list-item:hover {
-  background: linear-gradient(180deg, #4c5f7a, #475569);
+  background: linear-gradient(180deg, #1d7a5a, #2f7d63);
 }
 
 .player-list-item:active {
@@ -753,8 +753,8 @@ body {
 }
 
 .player-list-item.selected {
-  background: linear-gradient(180deg, #fb923c, #f97316);
-  color: #ffffff;
+  background: linear-gradient(180deg, #fcd94a, #facb09);
+  color: #04281f;
 }
 
 /* The player grid doubles as the lineup display: the five on the floor carry a
@@ -803,7 +803,7 @@ body {
 /* Play by play */
 
 .play-by-play {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 10px;
   padding: 0.5rem 0.6rem;
   overflow: hidden;
@@ -835,8 +835,8 @@ body {
 .edit-btn,
 .undo-last {
   background: transparent;
-  border: 1px solid #475569;
-  color: #cbd5e1;
+  border: 1px solid #2f7d63;
+  color: #cfe5da;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
   cursor: pointer;
@@ -845,15 +845,15 @@ body {
 }
 
 .undo-last {
-  background: #7c2d12;
-  border-color: #7c2d12;
+  background: #5a4700;
+  border-color: #5a4700;
   color: white;
 }
 
 .undo-last:disabled {
   background: transparent;
-  border-color: #334155;
-  color: #64748b;
+  border-color: #1f6b52;
+  color: #7fb09d;
   cursor: default;
 }
 
@@ -871,7 +871,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.3rem 0;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #1f6b52;
   font-size: 0.75rem;
   line-height: 1.2;
 }
@@ -882,7 +882,7 @@ body {
 }
 
 .period-badge {
-  color: #94a3b8;
+  color: #a7cdbc;
   min-width: 1.6rem;
   flex-shrink: 0;
 }
@@ -899,7 +899,7 @@ body {
 /* Stats panel */
 
 .stats-panel {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 8px;
   padding: 0.75rem;
   overflow-y: auto;
@@ -918,7 +918,7 @@ body {
 .box-score-table td {
   padding: 0.25rem 0.4rem;
   text-align: center;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #1f6b52;
 }
 
 .box-score-table .totals-row {
@@ -938,17 +938,17 @@ body {
 .data-table th {
   padding: 0.5rem 0.6rem;
   text-align: left;
-  background: #0a0e17;
-  color: #94a3b8;
+  background: #03180f;
+  color: #a7cdbc;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-bottom: 2px solid #334155;
+  border-bottom: 2px solid #1f6b52;
 }
 
 .data-table td {
   padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #1f6b52;
 }
 
 .data-table tbody tr:hover {
@@ -977,7 +977,7 @@ body {
 
 .court-line {
   fill: none;
-  stroke: #fed7aa;
+  stroke: #fef3c7;
   stroke-width: 0.08;
 }
 
@@ -986,8 +986,8 @@ body {
 }
 
 .court-rim {
-  fill: #fb923c;
-  stroke: #78350f;
+  fill: #fcd94a;
+  stroke: #5a4700;
   stroke-width: 0.04;
 }
 
@@ -1003,7 +1003,7 @@ body {
 }
 
 .shot-capture {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 8px;
   padding: 0.75rem;
   display: flex;
@@ -1081,7 +1081,7 @@ body {
 .shot-chart-select-actions button {
   flex: 1;
   padding: 0.3rem;
-  background: #334155;
+  background: #1f6b52;
   border: none;
   border-radius: 4px;
   color: inherit;
@@ -1120,8 +1120,8 @@ body {
 }
 
 .sync-badge.pending {
-  background: #78350f;
-  color: #fdba74;
+  background: #5a4700;
+  color: #fde68a;
 }
 
 .sync-badge.offline {
@@ -1142,7 +1142,7 @@ body {
 }
 
 .modal-panel {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 8px;
   padding: 1rem;
   box-sizing: border-box;
@@ -1250,7 +1250,7 @@ body {
 }
 
 .season-meta {
-  color: #94a3b8;
+  color: #a7cdbc;
   font-size: 0.9rem;
 }
 
@@ -1259,7 +1259,7 @@ body {
 }
 
 .opponent-split-row td {
-  color: #cbd5e1;
+  color: #cfe5da;
   font-style: italic;
 }
 
@@ -1294,7 +1294,7 @@ body {
   right: 0;
   bottom: 0;
   height: 2px;
-  background: linear-gradient(90deg, #f97316, #7c3f56 65%, transparent);
+  background: linear-gradient(90deg, #facb09, #1f6b52 65%, transparent);
 }
 
 /* Auth screen — the app's entry point, styled after the pixel-art DA:
@@ -1304,7 +1304,7 @@ body {
 .auth-screen {
   position: relative;
   overflow: hidden;
-  background: #0f172a;
+  background: #04281f;
 }
 
 .auth-screen-body {
@@ -1359,23 +1359,23 @@ body {
 .auth-tabs button {
   flex: 1;
   padding: 0.5rem;
-  background: linear-gradient(180deg, #5c4152, #45303d);
+  background: linear-gradient(180deg, #17684c, #0b4a35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
-  color: #e8d9e0;
+  color: #dff0e8;
   font-weight: 600;
   cursor: pointer;
 }
 
 .auth-tabs button:hover {
-  background: linear-gradient(180deg, #6b4d60, #543a49);
+  background: linear-gradient(180deg, #1d7a5a, #0f5c43);
 }
 
 .auth-tabs button.active {
-  background: linear-gradient(180deg, #fb923c, #f97316);
+  background: linear-gradient(180deg, #fcd94a, #facb09);
   border-bottom-color: rgba(0, 0, 0, 0.45);
-  color: #ffffff;
+  color: #04281f;
 }
 
 .auth-form {
@@ -1383,7 +1383,7 @@ body {
   flex-direction: column;
   gap: 0.75rem;
   width: min(360px, 100%);
-  background: #1e293b;
+  background: #00402e;
   border-radius: 10px;
   padding: 1.25rem;
 }
@@ -1393,14 +1393,14 @@ body {
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.9rem;
-  color: #cbd5e1;
+  color: #cfe5da;
 }
 
 .auth-form input,
 .auth-form select {
   padding: 0.5rem;
-  background: #0a0e17;
-  border: 1px solid #334155;
+  background: #03180f;
+  border: 1px solid #1f6b52;
   border-radius: 4px;
   color: inherit;
 }
@@ -1435,7 +1435,7 @@ body {
 
 .management-teams,
 .management-detail {
-  background: #1e293b;
+  background: #00402e;
   border-radius: 10px;
   padding: 0.75rem;
   overflow-y: auto;
@@ -1451,8 +1451,8 @@ body {
 .management-toolbar input {
   flex: 1;
   padding: 0.5rem 0.6rem;
-  background: #0a0e17;
-  border: 1px solid #334155;
+  background: #03180f;
+  border: 1px solid #1f6b52;
   border-radius: 4px;
   color: inherit;
 }
@@ -1474,14 +1474,14 @@ body {
   padding: 0.6rem 0.7rem;
   border-radius: 4px;
   cursor: pointer;
-  background: linear-gradient(180deg, #5c4152, #45303d);
+  background: linear-gradient(180deg, #17684c, #0b4a35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 3px solid rgba(0, 0, 0, 0.35);
   font-weight: 600;
 }
 
 .management-list li:hover {
-  background: linear-gradient(180deg, #6b4d60, #543a49);
+  background: linear-gradient(180deg, #1d7a5a, #0f5c43);
 }
 
 .management-list li > span:first-child {
@@ -1489,9 +1489,9 @@ body {
 }
 
 .management-list li.selected {
-  background: linear-gradient(180deg, #fb923c, #f97316);
+  background: linear-gradient(180deg, #fcd94a, #facb09);
   border-bottom-color: rgba(0, 0, 0, 0.45);
-  color: #ffffff;
+  color: #04281f;
 }
 
 .management-item-actions {
@@ -1521,7 +1521,7 @@ body {
 }
 
 .management-empty {
-  color: #94a3b8;
+  color: #a7cdbc;
   padding: 0.5rem;
 }
 
@@ -1533,23 +1533,23 @@ body {
 
 .management-tabs button {
   padding: 0.4rem 0.8rem;
-  background: linear-gradient(180deg, #5c4152, #45303d);
+  background: linear-gradient(180deg, #17684c, #0b4a35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 2px solid rgba(0, 0, 0, 0.35);
   border-radius: 4px;
-  color: #e8d9e0;
+  color: #dff0e8;
   font-weight: 600;
   cursor: pointer;
 }
 
 .management-tabs button:hover {
-  background: linear-gradient(180deg, #6b4d60, #543a49);
+  background: linear-gradient(180deg, #1d7a5a, #0f5c43);
 }
 
 .management-tabs button.active {
-  background: linear-gradient(180deg, #fb923c, #f97316);
+  background: linear-gradient(180deg, #fcd94a, #facb09);
   border-bottom-color: rgba(0, 0, 0, 0.45);
-  color: #ffffff;
+  color: #04281f;
 }
 
 @media (max-width: 720px) {
@@ -1562,7 +1562,7 @@ body {
 
 .spectator-subtitle {
   margin: 0.15rem 0 0;
-  color: #94a3b8;
+  color: #a7cdbc;
   font-size: 0.9rem;
 }
 
@@ -1583,12 +1583,12 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #1f6b52;
   font-size: 0.9rem;
 }
 
 .spectator-period-badge {
-  color: #94a3b8;
+  color: #a7cdbc;
   min-width: 2rem;
 }
 
@@ -1610,7 +1610,7 @@ body {
 .spectator-score .team-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #dff0e8;
 }
 
 .spectator-score .score-value {
@@ -1623,5 +1623,16 @@ body {
 .spectator-score .scoreboard-sep {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #64748b;
+  color: #7fb09d;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.app-brand-logo {
+  width: 36px;
+  height: 36px;
 }

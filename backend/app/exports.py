@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 from datetime import datetime
 from io import BytesIO, StringIO
+from pathlib import Path
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT
@@ -17,13 +18,15 @@ from app.domain.season import SeasonReport
 from app.domain.shot_zones import ShotZoneReport
 
 # Brand palette shared with the frontend (see frontend/src/index.css).
-_NAVY = colors.HexColor("#0f172a")
-_PANEL = colors.HexColor("#1e293b")
-_ORANGE = colors.HexColor("#f97316")
-_SLATE = colors.HexColor("#334155")
+_NAVY = colors.HexColor("#04281f")
+_PANEL = colors.HexColor("#00573e")
+_ORANGE = colors.HexColor("#facb09")
+_SLATE = colors.HexColor("#1f6b52")
 _MUTED = colors.HexColor("#64748b")
-_ROW_ALT = colors.HexColor("#f1f5f9")
+_ROW_ALT = colors.HexColor("#eef6f1")
 _WHITE = colors.white
+
+_LOGO_PATH = Path(__file__).parent / "assets" / "logo.png"
 
 # Excel (Windows) only auto-detects UTF-8 CSVs when a BOM is present;
 # without it accented characters (é, à, …) render as mojibake.
@@ -191,9 +194,21 @@ def _pdf_header_footer(title: str, subtitle: str | None):
         canvas.rect(0, page_h - 47, page_w, 3, stroke=0, fill=1)
         canvas.setFillColor(_WHITE)
         canvas.setFont("Helvetica-Bold", 14)
-        canvas.drawString(24, page_h - 29, "BasketStats")
+        text_x = 24
+        if _LOGO_PATH.exists():
+            canvas.drawImage(
+                str(_LOGO_PATH),
+                20,
+                page_h - 42,
+                width=38,
+                height=38,
+                mask="auto",
+                preserveAspectRatio=True,
+            )
+            text_x = 66
+        canvas.drawString(text_x, page_h - 29, "BasketStats")
         canvas.setFont("Helvetica", 9)
-        canvas.setFillColor(colors.HexColor("#cbd5e1"))
+        canvas.setFillColor(colors.HexColor("#cfe5da"))
         canvas.drawRightString(page_w - 24, page_h - 29, title)
 
         # Footer: generation timestamp + page number.
@@ -217,6 +232,7 @@ def _pdf_table(
     *,
     subtitle: str | None = None,
     highlight_rows: tuple[int, ...] = (),
+    legend: list[tuple[str, str]] | None = None,
 ) -> bytes:
     buffer = BytesIO()
     doc = SimpleDocTemplate(
@@ -246,6 +262,7 @@ def _pdf_table(
         spaceAfter=2,
     )
 
+    name_col = headers.index("Player")
     data = [headers, *rows]
     table = Table(data, repeatRows=1, hAlign="LEFT")
 
@@ -258,17 +275,17 @@ def _pdf_table(
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
         ("LEFTPADDING", (0, 0), (-1, -1), 6),
         ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
+        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cfe5da")),
         ("LINEBELOW", (0, 0), (-1, 0), 1.2, _ORANGE),
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_WHITE, _ROW_ALT]),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (0, 0), (0, -1), "LEFT"),
-        ("ALIGN", (1, 0), (-1, -1), "CENTER"),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("ALIGN", (name_col, 0), (name_col, -1), "LEFT"),
     ]
     for row_index in highlight_rows:
         style_commands.extend(
             [
-                ("BACKGROUND", (0, row_index), (-1, row_index), colors.HexColor("#ffedd5")),
+                ("BACKGROUND", (0, row_index), (-1, row_index), colors.HexColor("#fef3c7")),
                 ("FONTNAME", (0, row_index), (-1, row_index), "Helvetica-Bold"),
                 ("TEXTCOLOR", (0, row_index), (-1, row_index), _NAVY),
             ]
@@ -281,14 +298,49 @@ def _pdf_table(
     else:
         story.append(Spacer(1, 12))
     story.append(table)
+    if legend:
+        legend_style = ParagraphStyle(
+            "ExportLegend",
+            parent=styles["Normal"],
+            textColor=_MUTED,
+            fontSize=7.5,
+            leading=11,
+            spaceBefore=10,
+        )
+        text = " &nbsp;·&nbsp; ".join(f"<b>{abbr}</b> {meaning}" for abbr, meaning in legend)
+        story.append(Paragraph(f"<b>Légende :</b> {text}", legend_style))
 
     draw = _pdf_header_footer(title, subtitle)
     doc.build(story, onFirstPage=draw, onLaterPages=draw)
     return buffer.getvalue()
 
 
-def box_score_pdf(box: GameBoxScore, names: dict[str, str], title: str) -> bytes:
+_BOX_SCORE_LEGEND = [
+    ("N°", "numéro de maillot"),
+    ("FGM-A", "tirs réussis-tentés"),
+    ("2P / 3P", "tirs à 2 / 3 points réussis-tentés"),
+    ("FT", "lancers francs réussis-tentés"),
+    ("REB", "rebonds"),
+    ("AST", "passes décisives"),
+    ("ST", "interceptions"),
+    ("TO", "balles perdues"),
+    ("BS", "contres"),
+    ("PF", "fautes commises"),
+    ("FPF", "fautes provoquées"),
+    ("PTS", "points"),
+    ("%", "pourcentage de réussite (tirs, 2P, 3P, FT)"),
+]
+
+
+def box_score_pdf(
+    box: GameBoxScore,
+    names: dict[str, str],
+    title: str,
+    numbers: dict[str, int] | None = None,
+) -> bytes:
+    numbers = numbers or {}
     headers = [
+        "N°",
         "Player",
         "FGM-A",
         "2P",
@@ -300,15 +352,15 @@ def box_score_pdf(box: GameBoxScore, names: dict[str, str], title: str) -> bytes
         "TO",
         "BS",
         "PF",
-        "EFF",
+        "FPF",
         "PTS",
-        "MIN",
-        "+/-",
     ]
     rows = []
     for row in box.players.values():
+        number = numbers.get(row.player_id)
         rows.append(
             [
+                "" if number is None else str(number),
                 names.get(row.player_id, row.player_id),
                 f"{row.fgm}-{row.fga}",
                 f"{row.fg2m}-{row.fg2a}",
@@ -320,15 +372,14 @@ def box_score_pdf(box: GameBoxScore, names: dict[str, str], title: str) -> bytes
                 str(row.tov),
                 str(row.blk),
                 str(row.pf),
-                str(row.eff),
+                str(row.fpf),
                 str(row.pts),
-                f"{row.minutes:.1f}",
-                str(row.plus_minus),
             ]
         )
     totals = box.totals
     rows.append(
         [
+            "",
             "Totals",
             f"{totals.fgm}-{totals.fga}",
             f"{totals.fg2m}-{totals.fg2a}",
@@ -340,29 +391,19 @@ def box_score_pdf(box: GameBoxScore, names: dict[str, str], title: str) -> bytes
             str(totals.tov),
             str(totals.blk),
             str(totals.pf),
-            str(totals.eff),
+            str(totals.fpf),
             str(totals.pts),
-            "",
-            "",
         ]
     )
     rows.append(
         [
+            "",
             "%",
             f"{totals.fg_pct * 100:.1f}",
             f"{totals.fg2_pct * 100:.1f}",
             f"{totals.fg3_pct * 100:.1f}",
             f"{totals.ft_pct * 100:.1f}",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
+            *[""] * 8,
         ]
     )
     player_count = len(box.players)
@@ -373,6 +414,7 @@ def box_score_pdf(box: GameBoxScore, names: dict[str, str], title: str) -> bytes
         rows,
         subtitle=subtitle,
         highlight_rows=(len(rows) - 1, len(rows)),
+        legend=_BOX_SCORE_LEGEND,
     )
 
 

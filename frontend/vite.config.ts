@@ -11,16 +11,19 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.ts",
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.svg", "logo-192.png", "logo-512.png"],
       manifest: {
         name: "BasketStats",
         short_name: "BasketStats",
         description: "FIBA basketball stats, offline-first",
-        theme_color: "#0f172a",
-        background_color: "#0f172a",
+        theme_color: "#04281f",
+        background_color: "#04281f",
         display: "standalone",
         start_url: "/",
-        icons: [{ src: "favicon.svg", sizes: "any", type: "image/svg+xml" }],
+        icons: [
+          { src: "logo-192.png", sizes: "192x192", type: "image/png" },
+          { src: "logo-512.png", sizes: "512x512", type: "image/png" },
+        ],
       },
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],

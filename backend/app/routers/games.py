@@ -18,6 +18,7 @@ from app.services.stats_queries import (
     build_game_box_score,
     build_game_shot_zones,
     player_display_names,
+    player_jersey_numbers,
 )
 
 router = APIRouter(prefix="/games", tags=["games"])
@@ -249,7 +250,8 @@ def get_box_score_pdf(
     game = get_org_game(db, game_id, current_user.org_id)
     names = player_display_names(db, game.home_team_id)
     title = f"{game.label or 'Box score'} vs {game.opponent_name}"
-    content = box_score_pdf(build_game_box_score(db, game.id), names, title)
+    numbers = player_jersey_numbers(db, game.home_team_id)
+    content = box_score_pdf(build_game_box_score(db, game.id), names, title, numbers)
     return Response(
         content=content,
         media_type="application/pdf",

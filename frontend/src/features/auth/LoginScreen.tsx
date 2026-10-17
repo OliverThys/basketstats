@@ -30,7 +30,10 @@ export function LoginScreen() {
     <div className="app-frame">
       <div className="app-screen auth-screen">
         <header className="app-screen-header">
-          <h1>BasketStats</h1>
+          <h1 className="app-brand">
+            <img src="/logo-192.png" alt="" className="app-brand-logo" />
+            BasketStats
+          </h1>
         </header>
 
         <div className="auth-screen-body">
