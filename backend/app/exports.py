@@ -11,7 +11,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from app.domain.box_score import GameBoxScore
 from app.domain.season import SeasonReport
@@ -180,7 +180,7 @@ def shot_zones_csv(report: ShotZoneReport) -> str:
     return _CSV_BOM + buffer.getvalue()
 
 
-def _pdf_header_footer(title: str, subtitle: str | None):
+def _pdf_header_footer(subtitle: str | None):
     generated_at = datetime.now().strftime("%d/%m/%Y %H:%M")
 
     def _draw(canvas, doc):
@@ -194,22 +194,7 @@ def _pdf_header_footer(title: str, subtitle: str | None):
         canvas.rect(0, page_h - 47, page_w, 3, stroke=0, fill=1)
         canvas.setFillColor(_WHITE)
         canvas.setFont("Helvetica-Bold", 14)
-        text_x = 24
-        if _LOGO_PATH.exists():
-            canvas.drawImage(
-                str(_LOGO_PATH),
-                20,
-                page_h - 42,
-                width=38,
-                height=38,
-                mask="auto",
-                preserveAspectRatio=True,
-            )
-            text_x = 66
-        canvas.drawString(text_x, page_h - 29, "BasketStats")
-        canvas.setFont("Helvetica", 9)
-        canvas.setFillColor(colors.HexColor("#cfe5da"))
-        canvas.drawRightString(page_w - 24, page_h - 29, title)
+        canvas.drawString(24, page_h - 29, "BasketStats")
 
         # Footer: generation timestamp + page number.
         canvas.setStrokeColor(_SLATE)
@@ -223,6 +208,33 @@ def _pdf_header_footer(title: str, subtitle: str | None):
         canvas.restoreState()
 
     return _draw
+
+
+def _title_block(title: str, heading_style: ParagraphStyle):
+    """Heading with the club logo on its left."""
+    if not _LOGO_PATH.exists():
+        return Paragraph(title, heading_style)
+    block = Table(
+        [
+            [
+                Image(str(_LOGO_PATH), width=44, height=44, hAlign="LEFT"),
+                Paragraph(title, heading_style),
+            ]
+        ],
+        colWidths=[54, None],
+        hAlign="LEFT",
+    )
+    block.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+            ]
+        )
+    )
+    return block
 
 
 def _with_legend_aside(table, legend, table_width, page_width, styles):
@@ -342,7 +354,7 @@ def _pdf_table(
         )
     table.setStyle(TableStyle(style_commands))
 
-    story: list = [Paragraph(title, heading_style)]
+    story: list = [_title_block(title, heading_style)]
     if subtitle:
         story.append(Paragraph(subtitle, subtitle_style))
     else:
@@ -352,7 +364,7 @@ def _pdf_table(
     else:
         story.append(table)
 
-    draw = _pdf_header_footer(title, subtitle)
+    draw = _pdf_header_footer(subtitle)
     doc.build(story, onFirstPage=draw, onLaterPages=draw)
     return buffer.getvalue()
 
