@@ -398,7 +398,10 @@ def box_score_pdf(
         "PTS",
     ]
     rows = []
-    for row in box.players.values():
+    by_jersey = sorted(
+        box.players.values(), key=lambda row: numbers.get(row.player_id, float("inf"))
+    )
+    for row in by_jersey:
         number = numbers.get(row.player_id)
         rows.append(
             [
