@@ -233,7 +233,8 @@ def get_box_score_csv(
 ) -> Response:
     game = get_org_game(db, game_id, current_user.org_id)
     names = player_display_names(db, game.home_team_id)
-    content = box_score_csv(build_game_box_score(db, game.id), names)
+    numbers = player_jersey_numbers(db, game.home_team_id)
+    content = box_score_csv(build_game_box_score(db, game.id), names, numbers)
     return Response(
         content=content,
         media_type="text/csv; charset=utf-8",

@@ -33,11 +33,39 @@ _LOGO_PATH = Path(__file__).parent / "assets" / "logo.png"
 _CSV_BOM = "﻿"
 
 
-def box_score_csv(box: GameBoxScore, names: dict[str, str]) -> str:
+_BOX_SCORE_CSV_LEGEND = [
+    ("N°", "numéro de maillot"),
+    ("FGM-A", "tirs réussis-tentés"),
+    ("2PM-A / 3PM-A", "tirs à 2 / 3 points réussis-tentés"),
+    ("FTM-A", "lancers francs réussis-tentés"),
+    ("OFF", "rebonds offensifs"),
+    ("DEF", "rebonds défensifs"),
+    ("TOT", "rebonds totaux"),
+    ("AST", "passes décisives"),
+    ("ST", "interceptions"),
+    ("TO", "balles perdues"),
+    ("BS", "contres"),
+    ("PF", "fautes commises"),
+    ("FPF", "fautes provoquées"),
+    ("EFF", "évaluation"),
+    ("PTS", "points"),
+    ("MIN", "minutes jouées"),
+    ("+/-", "différentiel de points sur le terrain"),
+    ("eFG%", "adresse effective aux tirs"),
+    ("TS%", "adresse réelle aux tirs (true shooting)"),
+    ("%", "pourcentage de réussite (tirs, 2P, 3P, FT)"),
+]
+
+
+def box_score_csv(
+    box: GameBoxScore, names: dict[str, str], numbers: dict[str, int] | None = None
+) -> str:
+    numbers = numbers or {}
     buffer = StringIO()
     writer = csv.writer(buffer)
     writer.writerow(
         [
+            "N°",
             "Player",
             "FGM-A",
             "2PM-A",
@@ -60,9 +88,13 @@ def box_score_csv(box: GameBoxScore, names: dict[str, str]) -> str:
             "TS%",
         ]
     )
-    for row in box.players.values():
+    by_jersey = sorted(
+        box.players.values(), key=lambda row: numbers.get(row.player_id, float("inf"))
+    )
+    for row in by_jersey:
         writer.writerow(
             [
+                numbers.get(row.player_id, ""),
                 names.get(row.player_id, row.player_id),
                 f"{row.fgm}-{row.fga}",
                 f"{row.fg2m}-{row.fg2a}",
@@ -88,6 +120,7 @@ def box_score_csv(box: GameBoxScore, names: dict[str, str]) -> str:
     totals = box.totals
     writer.writerow(
         [
+            "",
             "Totals",
             f"{totals.fgm}-{totals.fga}",
             f"{totals.fg2m}-{totals.fg2a}",
@@ -112,6 +145,7 @@ def box_score_csv(box: GameBoxScore, names: dict[str, str]) -> str:
     )
     writer.writerow(
         [
+            "",
             "%",
             f"{totals.fg_pct * 100:.1f}",
             f"{totals.fg2_pct * 100:.1f}",
@@ -119,6 +153,10 @@ def box_score_csv(box: GameBoxScore, names: dict[str, str]) -> str:
             f"{totals.ft_pct * 100:.1f}",
         ]
     )
+    writer.writerow([])
+    writer.writerow(["Legend"])
+    for abbr, meaning in _BOX_SCORE_CSV_LEGEND:
+        writer.writerow([abbr, meaning])
     return _CSV_BOM + buffer.getvalue()
 
 
