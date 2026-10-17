@@ -451,13 +451,10 @@ def box_score_pdf(
             *[""] * 8,
         ]
     )
-    player_count = len(box.players)
-    subtitle = f"{player_count} joueur{'s' if player_count != 1 else ''}"
     return _pdf_table(
         title,
         headers,
         rows,
-        subtitle=subtitle,
         highlight_rows=(len(rows) - 1, len(rows)),
         legend=_BOX_SCORE_LEGEND,
     )
